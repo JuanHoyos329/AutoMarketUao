@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+#Direccion para la base de datos
+demo/demo/src/main/resources/application.properties
