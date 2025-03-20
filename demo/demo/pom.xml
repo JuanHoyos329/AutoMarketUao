@@ -5,26 +5,33 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>3.1.0</version> <!-- Ajusta la versión según tu proyecto -->
+		<relativePath/> <!-- Opcional: evita buscar un proyecto padre en el sistema de archivos -->
 	</parent>
 	<groupId>AutoMarketUao.com</groupId>
 	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>demo</name>
 	<description>Pagina web de AutoMarketUao</description>
-	<url/>
+	<url>https://github.com/AutoMarketUao/demo</url> <!-- Ejemplo de URL -->
 	<licenses>
-		<license/>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<id>developer-id</id>
+			<name>Tu Nombre</name>
+			<email>tuemail@example.com</email>
+		</developer>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:git://github.com/AutoMarketUao/demo.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:AutoMarketUao/demo.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/AutoMarketUao/demo</url>
 	</scm>
 	<properties>
 		<java.version>21</java.version>
