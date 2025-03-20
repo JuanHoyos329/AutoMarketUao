@@ -33,3 +33,6 @@ build/
 .vscode/
 
 demo\demo\pom.xml
+#Direccion para la base de datos
+demo\demo\src\main\resources\application.properties
+demo\demo\pom.xml

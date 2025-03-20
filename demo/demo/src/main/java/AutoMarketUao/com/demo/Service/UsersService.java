@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 import AutoMarketUao.com.demo.Model.UsersModel;
 import AutoMarketUao.com.demo.Repository.IUsersRepository;
 
-
 @Service
-public class UsersService implements IUserService{
+public class UsersService implements IUserService {
 
     @Autowired
     private IUsersRepository usersRepository;
@@ -20,41 +19,51 @@ public class UsersService implements IUserService{
     }
 
     @Override
-    public String updateUser(Integer idUser, UsersModel user) {
-        UsersModel userUpdate = foundUser(user);
+    public String updateUser(UsersModel user) {
+        UsersModel userUpdate = usersRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Usuario no encontrado con username: " + user.getUsername()));
 
-        if (userUpdate == null) {
-            return "El usuario con id " + idUser + " no existe.";
-        }
-            else {
-                userUpdate.setName(user.getName());
-                userUpdate.setLast_name(user.getLast_name());
-                userUpdate.setUsername(user.getUsername());
-                userUpdate.setPassword(user.getPassword());
-                userUpdate.setEmail(user.getEmail());
-                userUpdate.setPhone(user.getPhone());
-                usersRepository.save(userUpdate);
-
-                return "El usuario " + user.getUsername() + " fue actualizado correctamente.";
+        if (!userUpdate.getUsername().equals(user.getUsername())) {
+            if (usersRepository.findByUsername(user.getUsername()).isPresent()) {
+                throw new IllegalArgumentException("El nuevo username ya está en uso.");
             }
-        
+            usersRepository.delete(userUpdate);
+            userUpdate.setUsername(user.getUsername());
+            usersRepository.save(userUpdate);
+        }
+
+        userUpdate.setName(user.getName());
+        userUpdate.setLast_name(user.getLast_name());
+        userUpdate.setPassword(user.getPassword());
+        userUpdate.setEmail(user.getEmail());
+        userUpdate.setPhone(user.getPhone());
+
+        usersRepository.save(userUpdate);
+
+        return "El usuario fue actualizado correctamente.";
     }
 
     @Override
-    public String deleteUser(Integer idUser, UsersModel user) {
-        if(usersRepository.existsByUsername(user.getUsername())) {
+    public String deleteUser(UsersModel user) {
+        if (usersRepository.existsByUsername(user.getUsername())) {
             usersRepository.delete(user);
             return "El usuario " + user.getUsername() + " fue eliminado correctamente.";
-        }
-        else {
-            return "El usuario con id " + idUser + " no existe.";
+        } else {
+            return "El usuario con id " + user + " no existe.";
         }
     }
 
-    @Override
     public UsersModel foundUser(UsersModel user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'foundUser'");
+        return usersRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Usuario no encontrado con username: " + user.getUsername()));
     }
-    
+
+    @Override
+    public UsersModel foundUserByUsername(String username) {
+        return usersRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con username: " + username));
+    }
+
 }

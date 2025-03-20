@@ -4,7 +4,8 @@ import AutoMarketUao.com.demo.Model.UsersModel;
 
 public interface IUserService {
     String createUser(UsersModel user);
-    String updateUser(Integer idUser, UsersModel user);
-    String deleteUser(Integer idUser, UsersModel user);
+    String updateUser(UsersModel user);
+    String deleteUser(UsersModel user);
     UsersModel foundUser(UsersModel user);
+    UsersModel foundUserByUsername(String username);
 }
