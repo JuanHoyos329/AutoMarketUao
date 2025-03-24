@@ -12,6 +12,7 @@ import com.automarket.Model.PublicacionesModel;
 import com.automarket.Repository.PublicacionesRepository;
 
 
+
 @Service
 public class PublicacionesServiceImp implements IPublicacionesService{
     @Autowired
@@ -20,7 +21,7 @@ public class PublicacionesServiceImp implements IPublicacionesService{
     @Override
     public String createPublicacion(PublicacionesModel publicacion) {
         publicacionesRepository.save(publicacion);
-        return "La publicación con id "+ publicacion.getIdPublicacion()+", fue publicada con exito.";
+        return "La publicación con id    "+ publicacion.getIdPublicacion()+", fue publicada con exito.";
     }
     @Override
     public PublicacionesModel buscarPublicacionPorId(Integer  idPublicacion) {
@@ -45,17 +46,24 @@ public class PublicacionesServiceImp implements IPublicacionesService{
     @Override
     public String updatePublicacion(Integer idPublicacion, PublicacionesModel publicacion) {
         PublicacionesModel publicacionRecuperada = buscarPublicacionPorId(idPublicacion);
+        publicacionRecuperada.setModelo(publicacion.getModelo());
        publicacionRecuperada.setAño(publicacion.getAño());
         publicacionRecuperada.setDescripcion(publicacion.getDescripcion());
         publicacionRecuperada.setKilometraje(publicacion.getKilometraje());
         publicacionRecuperada.setMarca(publicacion.getMarca());
         publicacionRecuperada.setPrecio(publicacion.getPrecio());
         publicacionRecuperada.setEstado(publicacion.getEstado());
+        publicacionRecuperada.setTipo_combustible(publicacion.getTipo_combustible());
+        publicacionRecuperada.setTransmision(publicacion.getTransmision());
+        publicacionRecuperada.setTamaño_motor(publicacion.getTamaño_motor());
+        publicacionRecuperada.setPuertas(publicacion.getPuertas());
+        publicacionRecuperada.setUltimo_dueño(publicacion.getUltimo_dueño());
+        publicacionRecuperada.setDescripcion(publicacion.getDescripcion());
+        publicacionRecuperada.setUbicacion(publicacion.getUbicacion());
+        publicacionRecuperada.setEstado(publicacion.getEstado());
+
         publicacionesRepository.save(publicacionRecuperada);
-
-        
-
-        return "la publicación con el Id" + idPublicacion + " ha sido actualizado correctamente.";
+        return "la publicación con el Id " + idPublicacion + " ha sido actualizado correctamente.";
     }
     
     @Override
@@ -95,9 +103,5 @@ public List<PublicacionesModel> buscarPorRangoDePrecio(Integer precioMin, Intege
 } 
 
 
-    
-    
-        // Verificar si el usuario existe en el microservicio de usuarios
-        
 }
         
