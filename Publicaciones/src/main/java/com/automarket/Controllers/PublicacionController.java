@@ -50,7 +50,7 @@ public class PublicacionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    @PutMapping("/editar/{id}")
+    @PutMapping("/editar/{idPublicacion}")
     public ResponseEntity<String> editarPublicacion(@PathVariable int idPublicacion, @RequestBody PublicacionesModel publicacion) {
         try {
             return new ResponseEntity<>(publicacionesService.updatePublicacion(idPublicacion, publicacion), HttpStatus.OK);

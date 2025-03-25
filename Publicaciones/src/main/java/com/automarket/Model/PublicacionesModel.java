@@ -26,7 +26,7 @@ public class PublicacionesModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPublicacion;
-    private Integer idusuario;
+    private Integer userId;
     private String marca;
     private String modelo;
     private Year año;
