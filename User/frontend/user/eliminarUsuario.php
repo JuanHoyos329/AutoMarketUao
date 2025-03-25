@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["username"])) {
     }
 
     // URL de la API para eliminar al usuario
-    $api_url = "http://localhost:8080/automarketuao/users/delete/" . urlencode($username);
+    $api_url = "http://localhost:8081/automarketuao/users/delete/" . urlencode($username);
 
     // Inicializamos cURL para hacer la solicitud DELETE
     $ch = curl_init($api_url);

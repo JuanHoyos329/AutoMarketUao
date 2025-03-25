@@ -8,7 +8,7 @@ $isAdmin = ($_SESSION["user"]["role"] === "admin");
 $emailToEdit = isset($_GET["email"]) && !empty($_GET["email"]) ? filter_var($_GET["email"], FILTER_SANITIZE_EMAIL) : $_SESSION["user"]["email"];
 
 // URL del backend para obtener el usuario
-$api_url = "http://localhost:8080/automarketuao/users/read/" . urlencode($emailToEdit);
+$api_url = "http://localhost:8081/automarketuao/users/read/" . urlencode($emailToEdit);
 
 // Función para obtener datos de la API  
 function fetchFromApi($url) {  
@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["update"])) {
     if (!empty($data)) {  
         $json_data = json_encode($data);  
         // URL para actualizar el usuario, ahora usando el email
-        $update_url = "http://localhost:8080/automarketuao/users/update/" . urlencode($userToEdit['email']); 
+        $update_url = "http://localhost:8081/automarketuao/users/update/" . urlencode($userToEdit['email']); 
 
         $ch = curl_init($update_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["email"], $_POST["role
     }
 
     // Aquí se debería hacer la llamada a la API o la base de datos para actualizar el rol del usuario
-    $api_url = "http://localhost:8080/automarketuao/users/updateRole"; // Asumiendo que tienes una ruta para esto
+    $api_url = "http://localhost:8081/automarketuao/users/updateRole"; // Asumiendo que tienes una ruta para esto
     $data = json_encode(['email' => $email, 'role' => $role]);
 
     // Iniciar cURL para hacer la solicitud

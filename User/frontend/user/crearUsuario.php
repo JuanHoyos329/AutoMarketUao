@@ -24,7 +24,7 @@
                 ];
 
                 $json_data = json_encode($data);
-                $api_url = "http://localhost:8080/automarketuao/users/create";
+                $api_url = "http://localhost:8081/automarketuao/users/create";
 
                 $ch = curl_init($api_url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

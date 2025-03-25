@@ -5,7 +5,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    $api_url = "http://localhost:8080/automarketuao/users/read/" . urlencode($email);
+    $api_url = "http://localhost:8081/automarketuao/users/read/" . urlencode($email);
     
     // Realizar la solicitud a la API
     $response = file_get_contents($api_url);

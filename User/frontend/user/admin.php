@@ -8,7 +8,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
 }
 
 // Obtener la lista de usuarios desde la API
-$api_url = "http://localhost:8080/automarketuao/users/all";
+$api_url = "http://localhost:8081/automarketuao/users/all";
 $response = file_get_contents($api_url);
 $usuarios = json_decode($response, true);
 ?>
