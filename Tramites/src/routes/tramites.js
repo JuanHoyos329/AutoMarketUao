@@ -5,7 +5,7 @@ const { tramiteGet,
     tramitePost,
     UpdatePasos,
     CancelTramite
-} = require('../src/controllers/tramites');
+} = require('../controllers/tramites');
 
 const router = Router();
 
