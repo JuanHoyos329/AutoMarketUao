@@ -1,6 +1,5 @@
 package com.automarket.Model;
 
-import java.time.Year;
 
 import com.automarket.Model.ENUM.estado;
 import jakarta.persistence.Column;
@@ -29,14 +28,14 @@ public class PublicacionesModel {
     private Integer userId;
     private String marca;
     private String modelo;
-    private Year año;
+    private Integer ano;
     private Integer precio;
     private Integer kilometraje;
     private String tipo_combustible;
     private String transmision;
-    private Float tamaño_motor;
+    private Float tamano_motor;
     private Integer puertas;
-    private String ultimo_dueño;
+    private String ultimo_dueno;
     private String descripcion;
     private String ubicacion;
      @Column(name = "estado")

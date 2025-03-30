@@ -1,6 +1,5 @@
 package com.automarket.Controllers;
  
-import java.time.Year;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,18 +79,16 @@ public class PublicacionController {
     }
 
     @GetMapping("/buscar/año")
-    public ResponseEntity<?> buscarPorAño(@RequestParam("añoI") int añoI, @RequestParam("añoF") int añoF) {
-        try {
-            Year inicio = Year.of(añoI);
-            Year fin = Year.of(añoF);
-            List<PublicacionesModel> publicaciones = publicacionesService.buscarPorAño(inicio, fin);
-            return ResponseEntity.ok(publicaciones);
-        } catch (RecursoNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al procesar la solicitud. Verifica los parámetros.");
-        }
+public ResponseEntity<?> buscarPorAño(@RequestParam("anoI") Integer anoI, @RequestParam("anoF") Integer anoF) { 
+    try {
+        List<PublicacionesModel> publicaciones = publicacionesService.buscarPorAno(anoI, anoF);
+        return ResponseEntity.ok(publicaciones);
+    } catch (RecursoNoEncontradoException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al procesar la solicitud. Verifica los parámetros.");
     }
+}
 
 // Buscar por rango de precio
 @GetMapping("/buscar/precio")

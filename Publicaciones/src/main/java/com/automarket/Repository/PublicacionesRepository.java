@@ -1,6 +1,5 @@
 package com.automarket.Repository;
 
-import java.time.Year;
 import java.util.List;
 
 
@@ -12,7 +11,7 @@ public interface PublicacionesRepository extends JpaRepository<PublicacionesMode
 
     List<PublicacionesModel> findByMarca(String marca);
     List<PublicacionesModel> findByModelo(String modelo);
-    List<PublicacionesModel> findByAñoBetween(Year añoInicial, Year añofinal);
+    List<PublicacionesModel> findByAnoBetween(Integer anoInicial, Integer anofinal);
     List<PublicacionesModel> findByPrecioBetween(Integer precioMin, Integer precioMax);
 
 
