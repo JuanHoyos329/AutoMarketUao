@@ -1,6 +1,5 @@
 package com.automarket.Service;
 
-import java.time.Year;
 import java.util.List;
 
 import com.automarket.Model.PublicacionesModel;
@@ -15,6 +14,6 @@ public interface IPublicacionesService {
 
     List<PublicacionesModel> buscarPorMarca(String marca);
     List<PublicacionesModel> buscarPorModelo(String modelo);
-    List<PublicacionesModel> buscarPorAño(Year añoInicial, Year añoFinal);
+    List<PublicacionesModel> buscarPorAno(Integer anoInicial, Integer anoFinal);
     List<PublicacionesModel> buscarPorRangoDePrecio(Integer precioMin, Integer precioMax);
 }

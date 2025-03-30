@@ -1,5 +1,4 @@
 package com.automarket.Service;
-import java.time.Year;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +46,7 @@ public class PublicacionesServiceImp implements IPublicacionesService{
     public String updatePublicacion(Integer idPublicacion, PublicacionesModel publicacion) {
         PublicacionesModel publicacionRecuperada = buscarPublicacionPorId(idPublicacion);
         publicacionRecuperada.setModelo(publicacion.getModelo());
-       publicacionRecuperada.setAño(publicacion.getAño());
+       publicacionRecuperada.setAno(publicacion.getAno());
         publicacionRecuperada.setDescripcion(publicacion.getDescripcion());
         publicacionRecuperada.setKilometraje(publicacion.getKilometraje());
         publicacionRecuperada.setMarca(publicacion.getMarca());
@@ -55,9 +54,9 @@ public class PublicacionesServiceImp implements IPublicacionesService{
         publicacionRecuperada.setEstado(publicacion.getEstado());
         publicacionRecuperada.setTipo_combustible(publicacion.getTipo_combustible());
         publicacionRecuperada.setTransmision(publicacion.getTransmision());
-        publicacionRecuperada.setTamaño_motor(publicacion.getTamaño_motor());
+        publicacionRecuperada.setTamano_motor(publicacion.getTamano_motor());
         publicacionRecuperada.setPuertas(publicacion.getPuertas());
-        publicacionRecuperada.setUltimo_dueño(publicacion.getUltimo_dueño());
+        publicacionRecuperada.setUltimo_dueno(publicacion.getUltimo_dueno());
         publicacionRecuperada.setDescripcion(publicacion.getDescripcion());
         publicacionRecuperada.setUbicacion(publicacion.getUbicacion());
         publicacionRecuperada.setEstado(publicacion.getEstado());
@@ -85,10 +84,10 @@ public List<PublicacionesModel> buscarPorModelo(String modelo) {
 }
 
 @Override
-public List<PublicacionesModel> buscarPorAño(Year añoInicial, Year añoFinal) {
-    List<PublicacionesModel> publicaciones = publicacionesRepository.findByAñoBetween(añoInicial, añoFinal);
+public List<PublicacionesModel> buscarPorAno(Integer anoInicial, Integer anoFinal) {
+    List<PublicacionesModel> publicaciones = publicacionesRepository.findByAnoBetween(anoInicial, anoFinal);
     if (publicaciones.isEmpty()) {
-        throw new RecursoNoEncontradoException("No se encontraron publicaciones en el rango de años: " + añoInicial + " - " + añoFinal);
+        throw new RecursoNoEncontradoException("No se encontraron publicaciones en el rango de años: " + anoInicial + " - " + anoFinal);
     }
     return publicaciones;
 }
