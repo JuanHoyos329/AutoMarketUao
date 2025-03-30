@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 const bdmysql = new Sequelize(
-    'backTramites', //La base de datos
+    'backtramites', //La base de datos
     'root', //Usuario
     '', //Contraseña
     {
