@@ -1,7 +1,7 @@
 //Aquí se crean las tablas y sus atributos
 
 const { DataTypes } = require('sequelize');
-const { bdmysql } = require('../src/database/MariaDbConnection');
+const { bdmysql } = require('../database/MariaDbConnection');
 
 const Tramites = bdmysql.define('Tramites',
     {

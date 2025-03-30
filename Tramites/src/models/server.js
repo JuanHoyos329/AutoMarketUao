@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors') //Cors domain al tener la api en otra parte
 
-const { bdmysql } = require('../src/database/MariaDbConnection'); //Aqui es donde instancio la BD
+const { bdmysql } = require('../database/MariaDbConnection'); //Aqui es donde instancio la BD
 
 class Server {
 
@@ -44,7 +44,7 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.pathsMySql.tramites, require('../src/routes/tramites'));
+        this.app.use(this.pathsMySql.tramites, require('../routes/tramites'));
     }
 
     middlewares() {

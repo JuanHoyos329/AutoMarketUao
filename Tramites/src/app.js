@@ -14,7 +14,7 @@ console.log('Corriendo en el puerto 8080');
 
 require('dotenv').config();
 
-const Server = require('./src/models/server')
+const Server = require('./models/server')
 
 const server = new Server();
 

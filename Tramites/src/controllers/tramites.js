@@ -1,9 +1,10 @@
 //Aqui esta la logica de las consultas
 
 const { response, request } = require('express')
-const { Tramites } = require('../src/models/tramites.model');
+const { Tramites } = require('../models/tramites.model');
+const axios = require('axios');
 
-const { bdmysql } = require('../src/database/MariaDbConnection');
+const { bdmysql } = require('../database/MariaDbConnection');
 
 
 //Traer todas las personas
@@ -84,15 +85,15 @@ const tramitePost = async (req, res = response) => {
         const { id_publicacion, id_comprador } = req.body;
         
         // 1. Obtener id_vendedor desde el microservicio de publicaciones
-        const publicacionResponse = await axios.get(`http://microservicio-publicaciones/publicaciones/${id_publicacion}`);
-        const id_vendedor = publicacionResponse.data.id_usuario;
+        const publicacionResponse = await axios.get(`http://localhost:8080/automarket/publicaciones/${id_publicacion}`);
+        const id_vendedor = publicacionResponse.data.userId;
         
         // 2. Obtener datos del vendedor desde el microservicio de usuarios
-        const vendedorResponse = await axios.get(`http://microservicio-usuarios/usuarios/${id_vendedor}`);
+        const vendedorResponse = await axios.get(`http://localhost:8081/automarketuao/users/${id_vendedor}`);
         const { name, last_name, phone, email } = vendedorResponse.data;
 
         // 3. Obtener datos del comprador desde el microservicio de usuarios
-        const compradorResponse = await axios.get(`http://microservicio-usuarios/usuarios/${id_comprador}`);
+        const compradorResponse = await axios.get(`http://localhost:8081/automarketuao/users/${id_comprador}`);
         const { name: nameComprador, last_name: lastNameComprador, phone: phoneComprador, email: emailComprador } = compradorResponse.data;
         
         // 4. Crear el objeto del trámite con la información obtenida
