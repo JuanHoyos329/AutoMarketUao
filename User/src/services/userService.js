@@ -31,7 +31,7 @@ class UserService {
     if (user.role == "admin") {
       throw new Error("No puedes eliminar un usuario administrador.");
     }
-    
+
     await user.destroy();
     return `El usuario ${username} fue eliminado correctamente.`;
   }
@@ -42,24 +42,31 @@ class UserService {
     return user;
   }
 
+  //Para que Miguel pueda obtener el usuario por su id
+  async getUserByUserId(userId) {
+    const user = await User.findOne({ where: { userId } });
+    if (!user) throw new Error(`Usuario no encontrado con ID: ${userId}`);
+    return user;
+  }
+
   async updateUserRole(email, newRole) {
     // Verificar si el nuevo rol es válido
     if (newRole !== "admin" && newRole !== "user") {
       throw new Error("Rol no válido.");
     }
-  
+
     // Buscar al usuario por email
     const user = await User.findOne({ where: { email } });
     if (!user) {
       throw new Error(`Usuario no encontrado con email: ${email}`);
     }
-  
+
     // Actualizar el rol del usuario
     user.role = newRole;
-    
+
     // Guardar los cambios en la base de datos
     await user.save();
-    
+
     return `El rol del usuario con email ${email} fue actualizado a ${newRole}.`;
   }
 
@@ -88,7 +95,7 @@ class UserService {
 
     // Actualizar la información del usuario sin modificar la contraseña encriptada
     await user.update(userData);
-    
+
     return `El usuario con email ${email} fue actualizado correctamente.`;
   }
 }
