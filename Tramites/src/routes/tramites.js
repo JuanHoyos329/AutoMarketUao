@@ -22,7 +22,7 @@ router.post('/',
     tramitePost);
 
 //Eliminar una persona en la tabla de personas
-router.delete('/:id',
+router.put('/paso/:id',
     UpdatePasos);
 module.exports = router;
 

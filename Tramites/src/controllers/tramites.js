@@ -65,7 +65,7 @@ const tramitesByIdGet = async (req = request, res = response) => {
 
         res.json({
             ok: true,
-            data: unUsuario
+            data: unTramite
         });
 
 
@@ -89,15 +89,15 @@ const tramitePost = async (req, res = response) => {
         const id_vendedor = publicacionResponse.data.userId;
         
         // 2. Obtener datos del vendedor desde el microservicio de usuarios
-        const vendedorResponse = await axios.get(`http://localhost:8081/automarketuao/users/${id_vendedor}`);
+        const vendedorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${id_vendedor}`);
         const { name, last_name, phone, email } = vendedorResponse.data;
 
         // 3. Obtener datos del comprador desde el microservicio de usuarios
-        const compradorResponse = await axios.get(`http://localhost:8081/automarketuao/users/${id_comprador}`);
+        const compradorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${id_comprador}`);
         const { name: nameComprador, last_name: lastNameComprador, phone: phoneComprador, email: emailComprador } = compradorResponse.data;
         
         // 4. Crear el objeto del trámite con la información obtenida
-        const nuevoTramite = {
+        const nuevoTramite = await Tramites.create({
             id_vendedor,
             user_vendedor: `${name} ${last_name}`,
             tel_vendedor: phone,
@@ -115,11 +115,9 @@ const tramitePost = async (req, res = response) => {
             entrega: false,
             fecha_fin: null, // Se llenará cuando termine el proceso
             estado: "activo"
-        };
+        });
 
-        // Simulación de guardar en la base de datos (reemplazar con lógica real)
-        console.log('Trámite creado:', nuevoTramite);
-        
+        // Devolver la respuesta con el id generado
         res.status(201).json({ mensaje: 'Trámite creado exitosamente', tramite: nuevoTramite });
     } catch (error) {
         console.error('Error al crear el trámite:', error);
@@ -131,20 +129,20 @@ const tramitePost = async (req, res = response) => {
 // Ruta para actualizar un trámite
 const UpdatePasos = async (req, res = response) => {
     try {
-        const { id } = req.params;
+        const id = Number(req.params.id);
         const { pasoActualizar, id_usuario } = req.body;
 
         // Lista de pasos en orden
         const pasosTramite = ["revision_doc", "cita", "contrato", "pago", "Traspaso", "entrega"];
 
         // Buscar el trámite
-        const tramite = await Tramite.findById(id);
+        const tramite = await Tramites.findByPk(id);
         if (!tramite) {
             return res.status(404).json({ message: "Trámite no encontrado" });
         }
 
         // Verificar si el usuario es el vendedor (único que puede actualizar)
-        if (tramite.id_vendedor !== id_usuario) {
+        if (Number(tramite.id_vendedor) !== Number(id_usuario)) {
             return res.status(403).json({ message: "No tienes permiso para actualizar este trámite" });
         }
 
@@ -154,6 +152,12 @@ const UpdatePasos = async (req, res = response) => {
             return res.status(400).json({ message: "Paso inválido" });
         }
 
+        // Verificar si el paso ya fue completado
+        if (tramite[pasoActualizar]) {
+            return res.status(400).json({ message: "Este paso ya fue completado" });
+        }
+
+        // Verificar si los pasos anteriores ya fueron completados
         if (indexPaso > 0 && !tramite[pasosTramite[indexPaso - 1]]) {
             return res.status(400).json({ message: "Debes completar los pasos anteriores antes de actualizar este" });
         }
@@ -183,21 +187,32 @@ const CancelTramite = async (req, res = response) => {
         const { id_usuario } = req.body; // ID del usuario que intenta cancelar
 
         // Buscar el trámite
-        const tramite = await Tramite.findById(id);
+        const tramite = await Tramites.findByPk(id);
         if (!tramite) {
             return res.status(404).json({ message: "Trámite no encontrado" });
         }
 
+        // Verificar si el trámite está activo
+        if (tramite.estado !== "activo") {
+            return res.status(400).json({ message: "El trámite ya ha sido cancelado o finalizado" });
+        }
+        
         // Verificar si el usuario es el comprador o el vendedor
         if (tramite.id_comprador !== id_usuario && tramite.id_vendedor !== id_usuario) {
             return res.status(403).json({ message: "No tienes permiso para cancelar este trámite" });
         }
 
         // Actualizar el estado del trámite a "cancelado"
-        await Tramite.findByIdAndUpdate(id, {
-            entrega: false, // Si se cancela, aseguramos que la entrega esté en false
-            fecha_fin: new Date(), // Fecha en la que se cancela el trámite
-        });
+        await Tramites.update(
+            {
+                entrega: false, // Si se cancela, aseguramos que la entrega esté en false
+                fecha_fin: new Date(), // Fecha en la que se cancela el trámite
+                estado: "cancelado" // Cambio de estado
+            },
+            {
+                where: { id: id } // Filtra por el ID del trámite
+            }
+        );
 
         return res.status(200).json({ message: "Trámite cancelado exitosamente" });
     } catch (error) {
