@@ -1,8 +1,18 @@
 <?php
+session_start();
+
+// Verificar si el usuario ha iniciado sesión
+if (!isset($_SESSION["user"]) || !isset($_SESSION["user"]["userId"])) {
+    header("Location: login.php");
+    exit();
+}
+
+$userId = $_SESSION["user"]["userId"];
 $api_url = "http://localhost:8080/automarket/publicaciones/listarPublicaciones";
 $response = file_get_contents($api_url);
 $publicaciones = json_decode($response, true);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -22,6 +32,7 @@ $publicaciones = json_decode($response, true);
                     <th>Modelo</th>
                     <th>Año</th>
                     <th>Precio</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,15 +43,20 @@ $publicaciones = json_decode($response, true);
                             <td><?= htmlspecialchars($auto["modelo"]) ?></td>
                             <td><?= htmlspecialchars($auto["ano"]) ?></td>
                             <td>$<?= number_format($auto["precio"]) ?></td>
+                            <td>
+                                <?php if ($auto["userId"] == $userId): ?>
+                                    <a href="actualizarPublicaciones.php?idPublicacion=<?= $auto["idPublicacion"] ?>" class="btn btn-warning">✏️ Editar</a>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="4" class="text-center">No hay autos publicados.</td>
+                        <td colspan="5" class="text-center">No hay autos publicados.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
-        </table>
+        </table>   
         <a href="perfil.php" class="btn btn-secondary">🔙 Volver</a>
     </div>
 </body>

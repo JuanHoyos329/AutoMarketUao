@@ -1,0 +1,277 @@
+{
+	"info": {
+		"_postman_id": "b6e004ba-f7d7-4567-99e7-2956e46932a3",
+		"name": "AutoMarketUao",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38283987"
+	},
+	"item": [
+		{
+			"name": "Create",
+			"item": [
+				{
+					"name": "CrearPublicacion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\":4,\r\n    \"marca\":\"renault\", \r\n  \"modelo\":\"sandero\", \r\n  \"ano\":2020, \r\n  \"precio\":62000000, \r\n  \"kilometraje\": 50, \r\n  \"tipo_combustible\":\"gasolina\",\r\n  \"transmision\": \"manual\",\r\n  \"tamano_motor\": \"1600\",\r\n  \"puertas\":4,\r\n  \"ultimo_dueno\":\"uriel\", \r\n  \"descripcion\":\"carro comodo\" ,\r\n  \"ubicacion\":\"cali\",\r\n  \"estado\":\"Disponible\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/publicar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"publicar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Found",
+			"item": [
+				{
+					"name": "buscarPorId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listar todas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/listarPublicaciones",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"listarPublicaciones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buscarPorMarca",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/buscar/marca/renault",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"buscar",
+								"marca",
+								"renault"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buscarPorModelo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/buscar/modelo/sandero",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"buscar",
+								"modelo",
+								"sandero"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buscarPorAño",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/buscar/año?añoI=2015&añoF=2030",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"buscar",
+								"año"
+							],
+							"query": [
+								{
+									"key": "añoI",
+									"value": "2015"
+								},
+								{
+									"key": "añoF",
+									"value": "2030"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buscarPorPrecio",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/buscar/precio?min=50000000&max=80000000",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"buscar",
+								"precio"
+							],
+							"query": [
+								{
+									"key": "min",
+									"value": "50000000"
+								},
+								{
+									"key": "max",
+									"value": "80000000"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete",
+			"item": [
+				{
+					"name": "BorrarPublicacion",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/eliminar/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"eliminar",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update",
+			"item": [
+				{
+					"name": "editarPublicacion",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"marca\":\"renault\",\r\n   \"modelo\":\"sandero\",\r\n   \"ano\":2020,\r\n   \"precio\":60000000,\r\n   \"kilometraje\":\"50\",\r\n   \"tipo_combustible\": \"gasolina\",\r\n   \"transmision\":\"manual\",\r\n   \"tamano_motor\":1600,\r\n   \"puertas\":4,\r\n   \"ultimo_dueno\":\"uriel\",\r\n   \"descripcion\":\"carro muy comodo\",\r\n   \"ubicacion\":\"cali\",\r\n   \"estado\":\"Vendido\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/automarket/publicaciones/editar/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"automarket",
+								"publicaciones",
+								"editar",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
