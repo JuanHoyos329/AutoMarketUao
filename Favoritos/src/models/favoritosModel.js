@@ -5,9 +5,9 @@ const mysql = require("mysql2/promise");
 const connection = mysql.createPool({
     host: "localhost",
     user: "root",
-    password: "",
-    database: "favoritosDB",
-    port: "3308"
+    password: "root",
+    database: "favoritos",
+    port: "3306"
 
 });
 
@@ -18,19 +18,19 @@ async function obtenerFavoritos() {
 }
 
 // Obtener los favoritos de un usuario específico
-async function obtenerFavoritosPorUsuario(usuario_id) {
+async function obtenerFavoritosPorUsuario(userId) {
     const [result] = await connection.query(
-        "SELECT * FROM favoritos WHERE usuario_id = ?",
-        [usuario_id]
+        "SELECT * FROM favoritos WHERE userId = ?",
+        [userId]
     );
     return result;
 }
 
 // Agregar un nuevo favorito
-async function agregarFavorito(usuario_id, publicacion_id) {
+async function agregarFavorito(userId, idPublicacion) {
     const [result] = await connection.query(
-        "INSERT INTO favoritos (usuario_id, publicacion_id) VALUES (?, ?)",
-        [usuario_id, publicacion_id]
+        "INSERT INTO favoritos (userId, idPublicacion) VALUES (?, ?)",
+        [userId, idPublicacion]
     );
     return result;
 }
@@ -46,14 +46,14 @@ async function obtenerFavoritosConFiltros(filtros) {
     let query = "SELECT * FROM favoritos WHERE 1=1"; // 1=1 es para concatenar dinámicamente
     let params = [];
 
-    if (filtros.usuario_id) {
-        query += " AND usuario_id = ?";
-        params.push(filtros.usuario_id);
+    if (filtros.userId) {
+        query += " AND userId = ?";
+        params.push(filtros.userId);
     }
 
-    if (filtros.publicacion_id) {
-        query += " AND publicacion_id = ?";
-        params.push(filtros.publicacion_id);
+    if (filtros.idPublicacion) {
+        query += " AND idPublicacion = ?";
+        params.push(filtros.idPublicacion);
     }
 
     if (filtros.fecha_inicio) {

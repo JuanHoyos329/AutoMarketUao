@@ -25,10 +25,10 @@ router.get("/favoritos/usuario/:id", async (req, res) => {
 
 // Agregar un nuevo favorito
 router.post('/favoritos', async (req, res) => {
-    const usuario_id = req.body.usuario_id;
-    const publicacion_id = req.body.publicacion_id;
+    const userId = req.body.userId;
+    const idPublicacion = req.body.idPublicacion;
 
-    var result = await favoritosModel.agregarFavorito(usuario_id, publicacion_id);
+    var result = await favoritosModel.agregarFavorito(userId, idPublicacion);
     res.send("Favorito agregado correctamente");
 });
 
@@ -54,8 +54,8 @@ router.delete("/favoritos/:id", async (req, res) => {
 router.get("/favoritos/filtrar", async (req, res) => {
     //try {
         const filtros = {
-            usuario_id: req.query.usuario_id,
-            publicacion_id: req.query.publicacion_id,
+            userId: req.query.userId,
+            idPublicacion: req.query.idPublicacion,
             fecha_inicio: req.query.fecha_inicio,
             fecha_fin: req.query.fecha_fin
         };
