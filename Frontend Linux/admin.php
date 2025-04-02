@@ -21,16 +21,6 @@ $usuarios = json_decode($response, true);
     <title>Panel de Administración | AutoMarketUAO</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
-<?php if (isset($_GET['error'])): ?>
-    <div class="alert alert-danger text-center" id="error-message">
-        <?= htmlspecialchars($_GET['error']) ?>
-    </div>
-    <script>
-        setTimeout(function() {
-            document.getElementById('error-message').style.display = 'none';
-        }, 5000); // El mensaje desaparecerá después de 5 segundos
-    </script>
-<?php endif; ?>
 <body>
     <div class="container mt-5">
         <div class="card shadow-lg p-4">
@@ -38,7 +28,7 @@ $usuarios = json_decode($response, true);
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th> <!-- 🔹 Nueva columna para userId -->
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Email</th>
@@ -51,7 +41,7 @@ $usuarios = json_decode($response, true);
                 <tbody>
                     <?php foreach ($usuarios as $usuario): ?>
                         <tr>
-                            <td><?= htmlspecialchars($usuario["userId"]) ?></td> <!-- 🔹 Mostrar userId -->
+                            <td><?= htmlspecialchars($usuario["userId"]) ?></td>
                             <td><?= htmlspecialchars($usuario["name"]) ?></td>
                             <td><?= htmlspecialchars($usuario["last_name"]) ?></td>
                             <td><?= htmlspecialchars($usuario["email"]) ?></td>
@@ -69,21 +59,35 @@ $usuarios = json_decode($response, true);
                             <td>
                                 <a href="actualizarUsuario.php?email=<?= urlencode($usuario["email"]) ?>" class="btn btn-warning btn-sm">Editar</a>
                                 <form action="eliminarUsuario.php" method="post" class="d-inline">
-                                    <input type="hidden" name="username" value="<?= htmlspecialchars($usuario["username"]) ?>"> <!-- Usar username en lugar de email -->
+                                    <input type="hidden" name="username" value="<?= htmlspecialchars($usuario["username"]) ?>">
                                     <button type="submit" class="btn btn-danger btn-sm"
                                         onclick="return confirm('¿Estás seguro de que quieres eliminar este usuario?')">Eliminar</button>
                                 </form>
-                            </td>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+
+            <!-- Botones adicionales -->
+            <div class="text-center mt-3">
+                <a href="publicaciones.php" class="btn btn-primary">Ver Autos Publicados</a>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="crearPublicacion.php" class="btn btn-success">Crear Publicación</a>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="misTramites.php" class="btn btn-info">Mis Trámites</a>
+            </div>
+
             <div class="text-center mt-4">
                 <a href="index.php" class="btn btn-secondary">Cerrar Sesión</a>
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
