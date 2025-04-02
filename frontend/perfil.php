@@ -58,15 +58,14 @@ $isAdmin = ($user["role"] === "admin"); // Verificar si es administrador
             <div class="text-center mt-3">
                 <a href="crearPublicacion.php" class="btn btn-success">Crear Publicación</a>
             </div>
-            
-            
-            
-        
+
+            <!-- ✅ Nuevo Botón para acceder a Mis Trámites -->
+            <div class="text-center mt-3">
+                <a href="misTramites.php" class="btn btn-info">Mis Trámites</a>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-          
-
-
-

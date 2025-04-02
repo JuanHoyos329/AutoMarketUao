@@ -53,6 +53,26 @@ const Tramites = bdmysql.define('Tramites',
             allowNull: false
             // allowNull defaults to true
         },
+        'id_vehiculo': {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        'marca': {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        'modelo': {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        'ano': {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        'precio': {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         'fecha_inicio': {
             type: DataTypes.DATE,
             allowNull: false

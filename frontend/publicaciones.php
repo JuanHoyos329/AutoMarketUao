@@ -93,6 +93,13 @@ $publicacionesFiltradas = array_filter($publicaciones, function($auto) use ($mar
                                 <?php if ($auto["userId"] == $userId): ?>
                                     <a href="actualizarPublicaciones.php?idPublicacion=<?= $auto["idPublicacion"] ?>" class="btn btn-warning">✏️ Editar</a>
                                     <a href="eliminarPublicaciones.php?idPublicacion=<?= $auto["idPublicacion"] ?>" class="btn btn-danger">🗑️ Eliminar</a>
+                                <?php else: ?>
+                                    <!-- Botón para iniciar trámite -->
+                                    <button class="btn btn-success iniciar-tramite"
+                                        data-id="<?= $auto["idPublicacion"] ?>"
+                                        data-comprador="<?= $userId ?>">
+                                        Iniciar Trámite
+                                    </button>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -106,5 +113,35 @@ $publicacionesFiltradas = array_filter($publicaciones, function($auto) use ($mar
         </table>   
         <a href="perfil.php" class="btn btn-secondary">🔙 Volver</a>
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const botones = document.querySelectorAll(".iniciar-tramite");
+
+        botones.forEach(boton => {
+            boton.addEventListener("click", function () {
+                const idPublicacion = this.getAttribute("data-id");
+                const idComprador = this.getAttribute("data-comprador");
+
+                fetch("http://localhost:8082/api/tramites", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ idPublicacion, idComprador })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.mensaje); // Mensaje de éxito o error
+                })
+                .catch(error => {
+                    console.error("Error al iniciar trámite:", error);
+                    alert("Hubo un problema al iniciar el trámite.");
+                });
+            });
+        });
+    });
+    </script>
+
 </body>
 </html>

@@ -79,45 +79,117 @@ const tramitesByIdGet = async (req = request, res = response) => {
 
     }
 }
+
+const tramitesByCompradorGet = async (req = request, res = response) => {
+    const { id } = req.params;
+    console.log(`🔍 Buscando trámites para comprador con ID: ${id}`);
+
+    try {
+        const tramites = await Tramites.findAll({ where: { id_comprador: id } });
+
+        console.log("📊 Resultado de la consulta:", tramites); // <-- Verifica si hay datos
+
+        if (!tramites || tramites.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: `No hay trámites como comprador para el ID: ${id}`
+            });
+        }
+
+        res.json({
+            ok: true,
+            data: tramites
+        });
+
+    } catch (error) {
+        console.error("❌ Error en la consulta:", error);
+        res.status(500).json({
+            ok: false,
+            msg: "Error al obtener los trámites del comprador",
+            err: error
+        });
+    }
+};
+
+// Obtener trámites por id_vendedor
+const tramitesByVendedorGet = async (req = request, res = response) => {
+    const { id } = req.params;
+    console.log(`🔍 Buscando trámites para vendedor con ID: ${id}`);
+
+    try {
+        const tramites = await Tramites.findAll({ where: { id_vendedor: id } });
+
+        console.log("📊 Resultado de la consulta:", tramites); // <-- Verifica si hay datos
+
+        if (!tramites || tramites.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: `No hay trámites como vendedor para el ID: ${id}`
+            });
+        }
+
+        res.json({
+            ok: true,
+            data: tramites
+        });
+
+    } catch (error) {
+        console.error("❌ Error en la consulta:", error);
+        res.status(500).json({
+            ok: false,
+            msg: "Error al obtener los trámites del vendedor",
+            err: error
+        });
+    }
+};
+
 //Insertar personas
 const tramitePost = async (req, res = response) => {
     try {
-        const { id_publicacion, id_comprador } = req.body;
+        const { idPublicacion, idComprador } = req.body;
         
-        // 1. Obtener id_vendedor desde el microservicio de publicaciones
-        const publicacionResponse = await axios.get(`http://localhost:8080/automarket/publicaciones/${id_publicacion}`);
-        const id_vendedor = publicacionResponse.data.userId;
-        
-        // 2. Obtener datos del vendedor desde el microservicio de usuarios
-        const vendedorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${id_vendedor}`);
+        // 1. Obtener el usuario que creó la publicación (userId)
+        const publicacionResponse = await axios.get(`http://localhost:8080/automarket/publicaciones/${idPublicacion}`);
+        const idVendedor = publicacionResponse.data.userId;
+
+        // 2. Obtener datos del vendedor
+        const vendedorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${idVendedor}`);
         const { name, last_name, phone, email } = vendedorResponse.data;
 
-        // 3. Obtener datos del comprador desde el microservicio de usuarios
-        const compradorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${id_comprador}`);
+        // 3. Obtener datos del comprador
+        const compradorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${idComprador}`);
         const { name: nameComprador, last_name: lastNameComprador, phone: phoneComprador, email: emailComprador } = compradorResponse.data;
-        
-        // 4. Crear el objeto del trámite con la información obtenida
+
+        // 4. Obtener información del vehículo desde la publicación
+        const { marca, modelo, ano, precio } = publicacionResponse.data;
+
+        // 5. Crear el trámite en la BD
         const nuevoTramite = await Tramites.create({
-            id_vendedor,
+            id_vendedor: idVendedor,
             user_vendedor: `${name} ${last_name}`,
             tel_vendedor: phone,
             email_vendedor: email,
-            id_comprador,
+            id_comprador: idComprador,
             user_comprador: `${nameComprador} ${lastNameComprador}`,
             tel_comprador: phoneComprador,
             email_comprador: emailComprador,
-            fecha_inicio: new Date(), // Fecha actual
+            id_vehiculo: idPublicacion,
+            marca,
+            modelo,
+            ano,
+            precio,
+            fecha_inicio: new Date(),
             revision_doc: false,
             cita: false,
             contrato: false,
             pago: false,
             Traspaso: false,
             entrega: false,
-            fecha_fin: null, // Se llenará cuando termine el proceso
+            fecha_fin: null,
             estado: "activo"
         });
 
-        // Devolver la respuesta con el id generado
+        // Respuesta con el nuevo trámite
         res.status(201).json({ mensaje: 'Trámite creado exitosamente', tramite: nuevoTramite });
     } catch (error) {
         console.error('Error al crear el trámite:', error);
@@ -223,6 +295,8 @@ const CancelTramite = async (req, res = response) => {
 module.exports = {
     tramiteGet,
     tramitesByIdGet,
+    tramitesByCompradorGet,
+    tramitesByVendedorGet,
     tramitePost,
     UpdatePasos,
     CancelTramite,
