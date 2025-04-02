@@ -11,4 +11,4 @@ COPY target/*.jar app.jar
 EXPOSE 8080  
 
 # Comando para ejecutar la aplicación
-CMD ["mvn spring-boot:run"]
+CMD ["java", "-jar", "target/app.jar"]
