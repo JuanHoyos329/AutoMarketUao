@@ -150,7 +150,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/automarket/publicaciones/buscar/año?añoI=2015&añoF=2030",
+							"raw": "http://localhost:8080/automarket/publicaciones/buscar/año?anoI=2011&anoF=2020",
 							"protocol": "http",
 							"host": [
 								"localhost"
