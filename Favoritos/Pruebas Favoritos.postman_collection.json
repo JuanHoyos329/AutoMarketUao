@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "bf2dfacb-0c87-4ef7-b71e-c96adcf9070f",
+		"name": "Pruebas Favoritos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38284094",
+		"_collection_link": "https://doctic.postman.co/workspace/My-Workspace~2d4671e3-d423-4aed-82c9-92276984584c/collection/38284094-bf2dfacb-0c87-4ef7-b71e-c96adcf9070f?action=share&source=collection_link&creator=38284094"
+	},
+	"item": [
+		{
+			"name": "Obtener Favoritos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/favoritos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Favorito especifico",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/favoritos/usuario/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos",
+						"usuario",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Agregar Favorito",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"usuario_id\": 7,\r\n    \"publicacion_id\": 16\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/favoritos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar favorito",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/favoritos/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filtrar por usuario_id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/favoritos/filtrar?usuario_id=6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos",
+						"filtrar"
+					],
+					"query": [
+						{
+							"key": "usuario_id",
+							"value": "6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filtrar por publicacion_id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/favoritos/filtrar?publicacion_id=15",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos",
+						"filtrar"
+					],
+					"query": [
+						{
+							"key": "publicacion_id",
+							"value": "15"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filtrar por rango de fechas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/favoritos/filtrar?fecha_inicio=2025-03-22&fecha_fin=2025-03-26",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"favoritos",
+						"filtrar"
+					],
+					"query": [
+						{
+							"key": "fecha_inicio",
+							"value": "2025-03-22"
+						},
+						{
+							"key": "fecha_fin",
+							"value": "2025-03-26"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
