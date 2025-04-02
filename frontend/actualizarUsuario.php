@@ -8,7 +8,7 @@ $isAdmin = ($_SESSION["user"]["role"] === "admin");
 $emailToEdit = isset($_GET["email"]) && !empty($_GET["email"]) ? filter_var($_GET["email"], FILTER_SANITIZE_EMAIL) : $_SESSION["user"]["email"];
 
 // URL del backend para obtener el usuario
-$api_url = "http://localhost:8081/automarketuao/users/read/" . urlencode($emailToEdit);
+$api_url = "http://localhost:808/automarketuao/users/read/" . urlencode($emailToEdit);
 
 // Función para obtener datos de la API  
 function fetchFromApi($url) {  
