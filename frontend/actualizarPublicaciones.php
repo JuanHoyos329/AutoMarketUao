@@ -26,19 +26,19 @@ if (!$publicacion || $publicacion["userId"] != $userId) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data = [
         "userId" => $userId,
-        "marca" => $_POST["marca"] ?? $publicacion["marca"],
-        "modelo" => $_POST["modelo"] ?? $publicacion["modelo"],
-        "ano" => $_POST["ano"] ?? $publicacion["ano"],
-        "precio" => $_POST["precio"] ?? $publicacion["precio"],
-        "kilometraje" => $_POST["kilometraje"] ?? $publicacion["kilometraje"],
-        "tipo_combustible" => $_POST["tipo_combustible"] ?? $publicacion["tipo_combustible"],
-        "transmision" => $_POST["transmision"] ?? $publicacion["transmision"],
-        "tamano_motor" => $_POST["tamano_motor"] ?? $publicacion["tamano_motor"],
-        "puertas" => $_POST["puertas"] ?? $publicacion["puertas"],
-        "ultimo_dueno" => $_POST["ultimo_dueno"] ?? $publicacion["ultimo_dueno"],
-        "descripcion" => $_POST["descripcion"] ?? $publicacion["descripcion"],
-        "ubicacion" => $_POST["ubicacion"] ?? $publicacion["ubicacion"],
-        "estado" => $_POST["estado"] ?? $publicacion["estado"]
+        "marca" => $_POST["marca"],
+        "modelo" => $_POST["modelo"],
+        "ano" => $_POST["ano"],
+        "precio" => $_POST["precio"],
+        "kilometraje" => $_POST["kilometraje"],
+        "tipo_combustible" => $_POST["tipo_combustible"],
+        "transmision" => $_POST["transmision"],
+        "tamano_motor" => $_POST["tamano_motor"],
+        "puertas" => $_POST["puertas"],
+        "ultimo_dueno" => $_POST["ultimo_dueno"],
+        "descripcion" => $_POST["descripcion"],
+        "ubicacion" => $_POST["ubicacion"],
+        "estado" => $_POST["estado"]
     ];
 
     $updateUrl = "http://localhost:8080/automarket/publicaciones/editar/" . $idPublicacion;
@@ -90,8 +90,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label class="form-label">Precio</label>
                 <input type="number" class="form-control" name="precio" value="<?= htmlspecialchars($publicacion['precio']) ?>" required>
             </div>
+            <div class="mb-3">
+                <label class="form-label">Kilometraje</label>
+                <input type="number" class="form-control" name="kilometraje" value="<?= htmlspecialchars($publicacion['kilometraje']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tipo de Combustible</label>
+                <input type="text" class="form-control" name="tipo_combustible" value="<?= htmlspecialchars($publicacion['tipo_combustible']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Transmisión</label>
+                <input type="text" class="form-control" name="transmision" value="<?= htmlspecialchars($publicacion['transmision']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tamaño del Motor</label>
+                <input type="text" class="form-control" name="tamano_motor" value="<?= htmlspecialchars($publicacion['tamano_motor']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Número de Puertas</label>
+                <input type="number" class="form-control" name="puertas" value="<?= htmlspecialchars($publicacion['puertas']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Último Dueño</label>
+                <input type="text" class="form-control" name="ultimo_dueno" value="<?= htmlspecialchars($publicacion['ultimo_dueno']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" name="descripcion" required><?= htmlspecialchars($publicacion['descripcion']) ?></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ubicación</label>
+                <input type="text" class="form-control" name="ubicacion" value="<?= htmlspecialchars($publicacion['ubicacion']) ?>" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-control" name="estado" required>
+                    <option value="Disponible" <?= $publicacion['estado'] == "Disponible" ? "selected" : "" ?>>Disponible</option>
+                    <option value="Vendido" <?= $publicacion['estado'] == "Vendido" ? "selected" : "" ?>>Vendido</option>
+                    <option value="Reservado" <?= $publicacion['estado'] == "Reservado" ? "selected" : "" ?>>Reservado</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
-            <a href="publicaciones.php" class="btn btn-secondary">🔙 Volver</a>
+            <a href="publicaciones.php" class="btn btn-secondary"> Volver</a>
         </form>
     </div>
 </body>

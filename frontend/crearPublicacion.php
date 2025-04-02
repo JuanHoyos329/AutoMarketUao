@@ -112,7 +112,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label class="form-label">Estado</label>
                 <select class="form-control" name="estado" required>
                     <option value="Disponible">Disponible</option>
-                    <option value="Vendido">Vendido</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-success">📢 Publicar</button>
