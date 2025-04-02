@@ -1,3 +1,5 @@
+CREATE DATABASE backtramites;
+USE backtramites;
 CREATE TABLE tramites (
     id INT(11) NOT NULL AUTO_INCREMENT,
     id_vendedor INT(11) NOT NULL,
