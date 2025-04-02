@@ -80,5 +80,3 @@ module.exports = {
     eliminarFavorito,
     obtenerFavoritosConFiltros 
 };
-
-
