@@ -1,0 +1,21 @@
+CREATE TABLE tramites (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    id_vendedor INT(11) NOT NULL,
+    user_vendedor VARCHAR(30) NOT NULL,
+    id_comprador INT(11) NOT NULL,
+    user_comprador VARCHAR(30) NOT NULL,
+    tel_vendedor INT(11) NOT NULL,
+    tel_comprador INT(11) NOT NULL,
+    email_vendedor VARCHAR(30) NOT NULL,
+    email_comprador VARCHAR(30) NOT NULL,
+    fecha_inicio DATETIME NOT NULL,
+    revision_doc TINYINT(1) NOT NULL,
+    cita TINYINT(1) NOT NULL,
+    contrato TINYINT(1) NOT NULL,
+    pago TINYINT(1) NOT NULL,
+    traspaso TINYINT(1) NOT NULL,
+    entrega TINYINT(1) NOT NULL,
+    fecha_fin DATETIME NULL,
+    estado VARCHAR(10) NOT NULL,
+    PRIMARY KEY (id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
