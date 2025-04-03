@@ -1,47 +1,45 @@
 <?php
 session_start();
 
+$mensaje = ""; // Variable para almacenar mensajes de error o éxito
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
     $api_url = "http://localhost:8081/automarketuao/users/read/" . urlencode($email);
     
-    // Realizar la solicitud a la API
-    $response = file_get_contents($api_url);
-    
-    // Verificar si la respuesta de la API fue válida
-    if ($response === FALSE) {
-        die('<div class="alert alert-danger text-center">❌ Error al conectar con la API.</div>');
-    }
+    // Inicializar cURL para hacer la solicitud a la API
+    $ch = curl_init($api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Tiempo máximo de espera de 10 segundos
 
-    // Decodificar la respuesta JSON
-    $user = json_decode($response, true);
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-    // Comprobar si se ha encontrado al usuario
-    if ($user) {
-        // Ya no verificamos la contraseña encriptada, la comparamos tal cual
-        echo "Contraseña recibida de la API: " . $user["password"];  // Verifica la contraseña que se recibió
+    if ($response === false) {
+        $mensaje = '<div class="alert alert-danger text-center">❌ Error al conectar con la API.</div>';
     } else {
-        echo "No se encontró el usuario con el email proporcionado.";
-    }
+        $user = json_decode($response, true);
 
-    // Verificar si la contraseña ingresada es correcta
-    if ($user && $password === $user["password"]) {
-        // Almacenar la información del usuario en la sesión
-        $_SESSION["user"] = $user;
-        $_SESSION["userId"] = $user["userId"]; // Guardar userId en la sesión
-        
-        // Redirigir según el rol del usuario
-        if ($user["role"] === "admin") {
-            header("Location: admin.php");
+        if ($http_code !== 200) {
+            $mensaje = isset($user["error"]) ? 
+                '<div class="alert alert-danger text-center">❌ ' . htmlspecialchars($user["error"]) . '</div>' :
+                '<div class="alert alert-danger text-center">❌ Error desconocido en la autenticación.</div>';
+        } elseif (!$user || !isset($user["password"])) {
+            $mensaje = '<div class="alert alert-danger text-center">❌ No se encontró el usuario con el email proporcionado.</div>';
+        } elseif ($password === $user["password"]) {
+            $_SESSION["user"] = $user;
+            $_SESSION["userId"] = $user["userId"]; 
+
+            // Redirigir según el rol del usuario
+            header("Location: " . ($user["role"] === "admin" ? "admin.php" : "perfil.php"));
+            exit();
         } else {
-            header("Location: perfil.php");
+            $mensaje = '<div class="alert alert-danger text-center">❌ Email o contraseña incorrectos.</div>';
         }
-        exit();
-    } else {
-        // Si no coincide la contraseña
-        $error = "❌ Email o contraseña incorrectos.";
     }
 }
 
@@ -62,27 +60,28 @@ if (basename($_SERVER["PHP_SELF"]) == "index.php") {
 <body>
     <div class="container mt-5">
         <div class="card shadow-lg p-4">
-            <?php if (!isset($_SESSION["user"])): ?>
-                <h2 class="text-center mb-4">Iniciar Sesión</h2>
-                <?php if (isset($error)) echo '<div class="alert alert-danger text-center">' . $error . '</div>'; ?>
-                <form action="login.php" method="post">
-                    <div class="mb-3">
-                        <label class="form-label">Correo Electrónico</label>
-                        <input type="email" name="email" class="form-control" placeholder="Ingrese su correo" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña</label>
-                        <input type="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                    </div>
-                </form>
-                <div class="text-center mt-3">
-                    <a href="crearUsuario.php" class="btn btn-success">Crear Cuenta</a>
+            <h2 class="text-center mb-4">Iniciar Sesión</h2>
+
+            <!-- Mostrar mensaje de error o éxito arriba -->
+            <?= $mensaje ?>
+
+            <form action="login.php" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" name="email" class="form-control" placeholder="Ingrese su correo" required>
                 </div>
-            <?php endif; ?>
-            <!-- Botón de regreso a index.php -->
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="crearUsuario.php" class="btn btn-success">Crear Cuenta</a>
+            </div>
             <div class="text-center mt-3">
                 <a href="index.php" class="btn btn-secondary">Regresar a Inicio</a>
             </div>

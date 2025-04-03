@@ -11,6 +11,15 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
 $api_url = "http://192.168.100.3:8081/automarketuao/users/all";
 $response = file_get_contents($api_url);
 $usuarios = json_decode($response, true);
+
+// Verificar si hay mensajes de éxito o error en la sesión
+$mensaje = "";
+if (isset($_SESSION["mensaje"])) {
+    $mensaje = $_SESSION["mensaje"];
+    unset($_SESSION["mensaje"]); // Limpiar mensaje después de mostrarlo
+}
+
+$user = $_SESSION["user"];
 ?>
 
 <!DOCTYPE html>
@@ -25,6 +34,10 @@ $usuarios = json_decode($response, true);
     <div class="container mt-5">
         <div class="card shadow-lg p-4">
             <h2 class="text-center mb-4">Panel de Administración</h2>
+
+            <!-- Mensaje de éxito o error -->
+            <?= $mensaje ?>
+
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
@@ -69,21 +82,34 @@ $usuarios = json_decode($response, true);
                 </tbody>
             </table>
 
-            <!-- Botones adicionales -->
+            <!-- Botón para editar la información personal -->
+            <div class="text-center mt-3">
+                <a href="actualizarUsuario.php?username=<?= $user["username"] ?>" class="btn btn-warning">Editar Información</a>
+            </div>
+
+            <!-- Botón para eliminar cuenta -->
+            <div class="text-center mt-3">
+                <a href="eliminarUsuario.php?username=<?= $user["username"] ?>" class="btn btn-danger">Eliminar Cuenta</a>
+            </div>
+
+            <!-- Botón para cerrar sesión -->
+            <div class="text-center mt-3">
+                <a href="index.php" class="btn btn-secondary">Cerrar Sesión</a>
+            </div>
+
+            <!-- Botón para ver autos publicados -->
             <div class="text-center mt-3">
                 <a href="publicaciones.php" class="btn btn-primary">Ver Autos Publicados</a>
             </div>
 
+            <!-- Botón para crear una nueva publicación -->
             <div class="text-center mt-3">
                 <a href="crearPublicacion.php" class="btn btn-success">Crear Publicación</a>
             </div>
 
+            <!-- Botón para acceder a Mis Trámites -->
             <div class="text-center mt-3">
                 <a href="misTramites.php" class="btn btn-info">Mis Trámites</a>
-            </div>
-
-            <div class="text-center mt-4">
-                <a href="index.php" class="btn btn-secondary">Cerrar Sesión</a>
             </div>
         </div>
     </div>

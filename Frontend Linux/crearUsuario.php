@@ -1,3 +1,41 @@
+<?php
+$mensaje = ""; // Variable para almacenar mensajes de error o éxito
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $data = [
+        "name" => $_POST["name"],
+        "last_name" => $_POST["last_name"],
+        "email" => $_POST["email"],
+        "username" => $_POST["username"],
+        "password" => $_POST["password"], // Sin encriptación
+        "phone" => $_POST["phone"]
+    ];
+
+    $json_data = json_encode($data);
+    $api_url = "http://192.168.100.3:8081/automarketuao/users/create";
+
+    $ch = curl_init($api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($http_code == 201) {
+        $mensaje = '<div class="alert alert-success text-center">✅ Usuario creado exitosamente. Redirigiendo...</div>';
+        header("Refresh: 2; URL=index.php");
+    } else {
+        $error = json_decode($response, true);
+        $mensaje = '<div class="alert alert-danger text-center">❌ ' . 
+            (isset($error["error"]) ? htmlspecialchars($error["error"]) : "Error al crear el usuario. Verifica los datos ingresados.") . 
+            '</div>';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -11,40 +49,9 @@
     <div class="container mt-5">
         <div class="card shadow-lg p-4">
             <h2 class="text-center mb-4">Crear Usuario</h2>
-            
-            <?php
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                $data = [
-                    "name" => $_POST["name"],
-                    "last_name" => $_POST["last_name"],
-                    "email" => $_POST["email"],
-                    "username" => $_POST["username"],
-                    "password" => $_POST["password"], // Eliminada la encriptación
-                    "phone" => $_POST["phone"]
-                ];
 
-                $json_data = json_encode($data);
-                $api_url = "http://192.168.100.3:8081/automarketuao/users/create";
-
-                $ch = curl_init($api_url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-
-                $response = curl_exec($ch);
-                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-
-                if ($http_code == 201) {
-                    echo '<div class="alert alert-success text-center">✅ Usuario creado exitosamente.</div>';
-                    header("Refresh: 2; URL=index.php");
-                    exit();
-                } else {
-                    echo '<div class="alert alert-danger text-center">❌ Error al crear el usuario. Verifica los datos ingresados.</div>';
-                }
-            }
-            ?>
+            <!-- Mensaje de error o éxito -->
+            <?= $mensaje ?>
 
             <form action="crearUsuario.php" method="post">
                 <div class="mb-3">
