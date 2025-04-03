@@ -54,6 +54,19 @@ router.delete("/delete/:username", async (req, res) => {
 });
 
 // Ruta para actualizar el rol de un usuario
+router.put("/updateRole", async (req, res) => {
+  const { email, role } = req.body;
+
+  try {
+    // Llamar al servicio para actualizar el rol
+    const message = await userService.updateUserRole(email, role);
+    res.status(200).json({ message });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+);
+// Ruta para obtener un usuario por su ID
 router.get("/read/id/:userId", async (req, res) => {
   try {
     const user = await userService.getUserByUserId(req.params.userId);
