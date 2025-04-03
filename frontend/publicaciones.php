@@ -40,8 +40,6 @@ $publicacionesFiltradas = array_filter($publicaciones, function($auto) use ($mar
 </head>
 <body>
     <div class="container mt-5">
-        <a href="perfil.php" class="btn btn-secondary mb-3">🔙 Volver</a> <!-- Botón de regreso arriba -->
-
         <h2 class="text-center mb-4">🚗 Autos Publicados</h2>
         
         <!-- Formulario de filtro -->
@@ -113,6 +111,7 @@ $publicacionesFiltradas = array_filter($publicaciones, function($auto) use ($mar
                 <?php endif; ?>
             </tbody>
         </table>   
+        <a href="perfil.php" class="btn btn-secondary">🔙 Volver</a>
     </div>
 
     <script>
@@ -134,6 +133,7 @@ $publicacionesFiltradas = array_filter($publicaciones, function($auto) use ($mar
                 .then(response => response.json())
                 .then(data => {
                     alert(data.mensaje); // Mensaje de éxito o error
+                    window.location.href = "misTramites.php";
                 })
                 .catch(error => {
                     console.error("Error al iniciar trámite:", error);
