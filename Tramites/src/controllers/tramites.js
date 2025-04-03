@@ -87,12 +87,13 @@ const tramitesByCompradorGet = async (req = request, res = response) => {
     try {
         const tramites = await Tramites.findAll({ where: { id_comprador: id } });
 
-        console.log("📊 Resultado de la consulta:", tramites); // <-- Verifica si hay datos
+        console.log("📊 Resultado de la consulta:", tramites);
 
         if (!tramites || tramites.length === 0) {
-            return res.status(404).json({
-                ok: false,
-                msg: `No hay trámites como comprador para el ID: ${id}`
+            return res.status(200).json({
+                ok: true, // Respuesta válida, sin error
+                msg: "No tienes trámites para esta categoría",
+                data: [] // Devolvemos un array vacío en lugar de null
             });
         }
 
@@ -106,7 +107,7 @@ const tramitesByCompradorGet = async (req = request, res = response) => {
         res.status(500).json({
             ok: false,
             msg: "Error al obtener los trámites del comprador",
-            err: error
+            err: error.message // Se envía solo el mensaje del error
         });
     }
 };
@@ -119,12 +120,13 @@ const tramitesByVendedorGet = async (req = request, res = response) => {
     try {
         const tramites = await Tramites.findAll({ where: { id_vendedor: id } });
 
-        console.log("📊 Resultado de la consulta:", tramites); // <-- Verifica si hay datos
+        console.log("📊 Resultado de la consulta:", tramites);
 
         if (!tramites || tramites.length === 0) {
-            return res.status(404).json({
-                ok: false,
-                msg: `No hay trámites como vendedor para el ID: ${id}`
+            return res.status(200).json({
+                ok: true, // Se mantiene true para indicar que la respuesta es válida
+                msg: "No tienes trámites para esta categoría",
+                data: [] // Se devuelve un array vacío en lugar de null
             });
         }
 
@@ -138,7 +140,7 @@ const tramitesByVendedorGet = async (req = request, res = response) => {
         res.status(500).json({
             ok: false,
             msg: "Error al obtener los trámites del vendedor",
-            err: error
+            err: error.message // Enviamos solo el mensaje del error para evitar detalles sensibles
         });
     }
 };
@@ -148,6 +150,19 @@ const tramitePost = async (req, res = response) => {
     try {
         const { idPublicacion, idComprador } = req.body;
         
+        // Verificar si el usuario ya tiene un trámite activo para esta publicación
+        const tramiteExistente = await Tramites.findOne({
+            where: {
+                id_comprador: idComprador,
+                id_vehiculo: idPublicacion,
+                estado: "activo"
+            }
+        });
+
+        if (tramiteExistente) {
+            return res.status(400).json({ mensaje: "Ya tienes un tramite activo para esta publicación. Revisa en 'Tramites como Comprador'." });
+        }
+
         // 1. Obtener el usuario que creó la publicación (userId)
         const publicacionResponse = await axios.get(`http://localhost:8080/automarket/publicaciones/${idPublicacion}`);
         const idVendedor = publicacionResponse.data.userId;
@@ -190,7 +205,7 @@ const tramitePost = async (req, res = response) => {
         });
 
         // Respuesta con el nuevo trámite
-        res.status(201).json({ mensaje: 'Trámite creado exitosamente', tramite: nuevoTramite });
+        res.status(201).json({ mensaje: 'Trámite creado exitosamente. Revisa en "Tramites como Comprador"', tramite: nuevoTramite });
     } catch (error) {
         console.error('Error al crear el trámite:', error);
         res.status(500).json({ mensaje: 'Error interno al crear el trámite', error: error.message });

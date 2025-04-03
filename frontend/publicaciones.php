@@ -133,6 +133,7 @@ $publicacionesFiltradas = array_filter($publicaciones, function($auto) use ($mar
                 .then(response => response.json())
                 .then(data => {
                     alert(data.mensaje); // Mensaje de éxito o error
+                    window.location.href = "misTramites.php";
                 })
                 .catch(error => {
                     console.error("Error al iniciar trámite:", error);
