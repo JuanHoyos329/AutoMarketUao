@@ -1,7 +1,8 @@
-CREATE SCHEMA IF NOT EXISTS AutoMarketUao  DEFAULT CHARACTER SET utf8 ;
+CREATE SCHEMA IF NOT EXISTS AutoMarketUao;
 USE AutoMarketUao ;
 CREATE TABLE Publicaciones (
 idPublicacion INT AUTO_INCREMENT NOT NULL,
+fecha_publicacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 userId INT NOT NULL,
   marca VARCHAR(45) NOT NULL,
   modelo VARCHAR(45) NOT NULL,
@@ -19,7 +20,6 @@ userId INT NOT NULL,
   primary key (idPublicacion)
   
   );
-  
   
 
 

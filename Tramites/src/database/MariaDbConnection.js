@@ -3,7 +3,7 @@ const { Sequelize } = require('sequelize');
 const bdmysql = new Sequelize(
     'backtramites', //La base de datos
     'root', //Usuario
-    '', //Contraseña
+    'annie', //Contraseña
     {
         host: 'localhost', //Nombre Host
         dialect: 'mysql' // MYSQL
@@ -13,7 +13,7 @@ const bdmysql = new Sequelize(
 const bdmysql1 = new Sequelize(
     'test',
     'root',
-    '',
+    'annie',
     {
         host: 'localhost',
         port: '8082',

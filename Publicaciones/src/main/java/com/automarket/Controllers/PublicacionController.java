@@ -15,7 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.automarket.Exeptions.DatosInvalidosException;
+import com.automarket.Exeptions.IntegridadDeDatosException;
+import com.automarket.Exeptions.ParametroInvalidoException;
+import org.springframework.dao.DataIntegrityViolationException;
 import com.automarket.Exeptions.RecursoNoEncontradoException;
+
 import com.automarket.Model.PublicacionesModel;
 import com.automarket.Service.IPublicacionesService;
 
@@ -25,9 +30,29 @@ public class PublicacionController {
     @Autowired
     IPublicacionesService publicacionesService;
     @PostMapping("/publicar")
-    public ResponseEntity<String> crearPublicacion(@RequestBody PublicacionesModel publicacion){
-        return new ResponseEntity<String>(publicacionesService.createPublicacion(publicacion),HttpStatus.OK);
-    }
+    public ResponseEntity<String> crearPublicacion(@RequestBody PublicacionesModel publicacion) {
+        // Validaciones antes de guardar
+        if (publicacion.getPrecio() == null || publicacion.getPrecio() <= 0) {
+            throw new DatosInvalidosException("El precio debe ser mayor a 0.");
+        }
+    
+        if (publicacion.getAno() == null || publicacion.getAno() < 1900) {
+            throw new DatosInvalidosException("El año debe ser mayor a 1900.");
+        }
+        if (publicacion.getKilometraje() == null || publicacion.getKilometraje() < 0) {
+            throw new DatosInvalidosException("El kilometraje no puede ser negativo.");
+        }
+    
+        try {
+            return new ResponseEntity<>(publicacionesService.createPublicacion(publicacion), HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            throw new IntegridadDeDatosException("Error: La publicación no pudo guardarse debido a una violación de integridad.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error desconocido al crear la publicación: " + e.getMessage());
+        }
+    }    
+    
+
      @GetMapping("/{idPublicacion}")
     public ResponseEntity<?> buscarPublicacionPorId(@PathVariable int idPublicacion){
         try {
@@ -50,13 +75,27 @@ public class PublicacionController {
         }
     }
     @PutMapping("/editar/{idPublicacion}")
-    public ResponseEntity<String> editarPublicacion(@PathVariable int idPublicacion, @RequestBody PublicacionesModel publicacion) {
-        try {
-            return new ResponseEntity<>(publicacionesService.updatePublicacion(idPublicacion, publicacion), HttpStatus.OK);
-        } catch (RecursoNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+public ResponseEntity<String> editarPublicacion(@PathVariable int idPublicacion, @RequestBody PublicacionesModel publicacion) {
+    if (publicacion.getPrecio() == null || publicacion.getPrecio() <= 0) {
+        throw new DatosInvalidosException("El precio debe ser mayor a 0.");
     }
+
+    if (publicacion.getAno() == null || publicacion.getAno() < 1900) {
+        throw new DatosInvalidosException("El año debe ser mayor a 1900.");
+    }
+    if (publicacion.getKilometraje() == null || publicacion.getKilometraje() < 0) {
+        throw new DatosInvalidosException("El kilometraje no puede ser negativo.");
+    }
+
+    try {
+        return new ResponseEntity<>(publicacionesService.createPublicacion(publicacion), HttpStatus.CREATED);
+    } catch (DataIntegrityViolationException e) {
+        throw new IntegridadDeDatosException("Error: La publicación no pudo guardarse debido a una violación de integridad.");
+    } catch (Exception e) {
+        throw new RuntimeException("Error desconocido al crear la publicación: " + e.getMessage());
+    }
+}
+
     @GetMapping("/buscar/marca/{marca}")
     public ResponseEntity<?> buscarPorMarca(@PathVariable String marca) {
         try {
@@ -79,16 +118,12 @@ public class PublicacionController {
     }
 
     @GetMapping("/buscar/año")
-public ResponseEntity<?> buscarPorAño(@RequestParam("anoI") Integer anoI, @RequestParam("anoF") Integer anoF) { 
-    try {
-        List<PublicacionesModel> publicaciones = publicacionesService.buscarPorAno(anoI, anoF);
-        return ResponseEntity.ok(publicaciones);
-    } catch (RecursoNoEncontradoException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al procesar la solicitud. Verifica los parámetros.");
+    public ResponseEntity<?> buscarPorAño(@RequestParam("anoI") Integer anoI, @RequestParam("anoF") Integer anoF) { 
+        if (anoI < 1900 || anoF < 1900 || anoI > anoF) {
+            throw new ParametroInvalidoException("El rango de años es inválido. Debe ser entre 1900 y el año actual.");
+        }
+        return ResponseEntity.ok(publicacionesService.buscarPorAno(anoI, anoF));
     }
-}
 
 // Buscar por rango de precio
 @GetMapping("/buscar/precio")

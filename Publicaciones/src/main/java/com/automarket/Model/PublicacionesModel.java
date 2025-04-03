@@ -1,30 +1,22 @@
 package com.automarket.Model;
 
-
 import com.automarket.Model.ENUM.estado;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;
 
 @Entity
 @Data
 @Table(name = "publicaciones")
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 public class PublicacionesModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idPublicacion;
+
     private Integer userId;
     private String marca;
     private String modelo;
@@ -38,9 +30,11 @@ public class PublicacionesModel {
     private String ultimo_dueno;
     private String descripcion;
     private String ubicacion;
-     @Column(name = "estado")
-        @Enumerated (EnumType.STRING)
-        private estado estado;
 
-    
+    @Enumerated(EnumType.STRING)
+    private estado estado;
+
+    @Column(name = "fecha_publicacion", updatable = false, nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaPublicacion = new Date(); // Se asigna automáticamente la fecha actual
 }
