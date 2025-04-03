@@ -84,16 +84,28 @@ class UserService {
       throw new Error(`Usuario no encontrado con email: ${email}`);
     }
 
+    // Verificar si el nuevo correo ya está en uso por otro usuario
+    if (userData.email && userData.email !== user.email) {
+      const existingEmail = await User.findOne({ where: { email: userData.email } });
+      if (existingEmail) {
+        throw new Error(`El correo ${userData.email} ya está en uso por otro usuario.`);
+      }
+    }
+
+    // Verificar si el nuevo username ya está en uso por otro usuario
+    if (userData.username && userData.username !== user.username) {
+      const existingUsername = await User.findOne({ where: { username: userData.username } });
+      if (existingUsername) {
+        throw new Error(`El username "${userData.username}" ya está en uso.`);
+      }
+    }
+
     // Mantener la contraseña existente (si no se proporciona una nueva contraseña)
-    if (userData.password && userData.password !== "") {
-      // Si se proporciona una nueva contraseña, la dejamos tal cual (sin encriptar)
-      userData.password = userData.password; // No aplicamos encriptación
-    } else {
-      // Si no se proporciona una nueva contraseña, mantenemos la contraseña existente
+    if (!userData.password || userData.password === "") {
       userData.password = user.password; // Mantener la contraseña existente
     }
 
-    // Actualizar la información del usuario sin modificar la contraseña encriptada
+    // Actualizar la información del usuario
     await user.update(userData);
 
     return `El usuario con email ${email} fue actualizado correctamente.`;
