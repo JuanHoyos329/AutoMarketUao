@@ -22,42 +22,52 @@ if (!$publicacion || $publicacion["userId"] != $userId) {
     die('<div class="alert alert-danger text-center">❌ No tienes permiso para editar esta publicación.</div>');
 }
 
-// Procesar la actualización si se envía el formulario
+// Manejo de errores si se envía el formulario
+$errorMessage = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $data = [
         "userId" => $userId,
-        "marca" => $_POST["marca"],
-        "modelo" => $_POST["modelo"],
-        "ano" => $_POST["ano"],
-        "precio" => $_POST["precio"],
-        "kilometraje" => $_POST["kilometraje"],
-        "tipo_combustible" => $_POST["tipo_combustible"],
-        "transmision" => $_POST["transmision"],
-        "tamano_motor" => $_POST["tamano_motor"],
-        "puertas" => $_POST["puertas"],
-        "ultimo_dueno" => $_POST["ultimo_dueno"],
-        "descripcion" => $_POST["descripcion"],
-        "ubicacion" => $_POST["ubicacion"],
-        "estado" => $_POST["estado"]
+        "marca" => htmlspecialchars($_POST["marca"] ?? ""),
+        "modelo" => htmlspecialchars($_POST["modelo"] ?? ""),
+        "ano" => $_POST["ano"] ?? 0,
+        "precio" => $_POST["precio"] ?? 0,
+        "kilometraje" => $_POST["kilometraje"] ?? 0,
+        "tipo_combustible" => htmlspecialchars($_POST["tipo_combustible"] ?? ""),
+        "transmision" => htmlspecialchars($_POST["transmision"] ?? ""),
+        "tamano_motor" => (float) ($_POST["tamano_motor"] ?? 0.0),
+        "puertas" => $_POST["puertas"] ?? 0,
+        "ultimo_dueno" => htmlspecialchars($_POST["ultimo_dueno"] ?? ""),
+        "descripcion" => htmlspecialchars($_POST["descripcion"] ?? ""),
+        "ubicacion" => htmlspecialchars($_POST["ubicacion"] ?? ""),
+        "estado" => $_POST["estado"] ?? "Disponible"
     ];
 
     $updateUrl = "http://localhost:8080/automarket/publicaciones/editar/" . $idPublicacion;
-    
+
     $ch = curl_init($updateUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-    
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    
+
+    $error = json_decode($response, true);
+
     if ($httpCode == 200) {
-        header("Location: publicaciones.php");
+        echo '<div class="alert alert-success text-center">✅ Publicación actualizada exitosamente. Redirigiendo...</div>';
+        header("Refresh: 2; URL=publicaciones.php");
         exit();
     } else {
-        echo '<div class="alert alert-danger text-center">❌ Error al actualizar la publicación. Código HTTP: ' . $httpCode . '</div>';
+        $errorMessage = "❌ Error al actualizar la publicación.";
+        
+        if (isset($error["message"])) {
+            $errorMessage .= " " . htmlspecialchars($error["message"]);
+        }
+
+        echo '<div class="alert alert-danger text-center">' . $errorMessage . '</div>';
     }
 }
 ?>
@@ -73,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4">✏️ Actualizar Publicación</h2>
+
         <form method="POST">
             <div class="mb-3">
                 <label class="form-label">Marca</label>
