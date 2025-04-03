@@ -1,6 +1,8 @@
 package com.automarket.Controllers;
  
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,29 +31,40 @@ import com.automarket.Service.IPublicacionesService;
 public class PublicacionController {
     @Autowired
     IPublicacionesService publicacionesService;
+
     @PostMapping("/publicar")
-    public ResponseEntity<String> crearPublicacion(@RequestBody PublicacionesModel publicacion) {
-        // Validaciones antes de guardar
-        if (publicacion.getPrecio() == null || publicacion.getPrecio() <= 0) {
-            throw new DatosInvalidosException("El precio debe ser mayor a 0.");
-        }
+public ResponseEntity<?> crearPublicacion(@RequestBody PublicacionesModel publicacion) {
+    Map<String, String> response = new HashMap<>();
+
+    // Validaciones antes de guardar
+    if (publicacion.getPrecio() == null || publicacion.getPrecio() <= 0) {
+        response.put("message", "❌ El precio debe ser mayor a 0.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
     
-        if (publicacion.getAno() == null || publicacion.getAno() < 1900) {
-            throw new DatosInvalidosException("El año debe ser mayor a 1900.");
-        }
-        if (publicacion.getKilometraje() == null || publicacion.getKilometraje() < 0) {
-            throw new DatosInvalidosException("El kilometraje no puede ser negativo.");
-        }
+    if (publicacion.getAno() == null || publicacion.getAno() < 1900) {
+        response.put("message", "❌ El año debe ser mayor a 1900.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
     
-        try {
-            return new ResponseEntity<>(publicacionesService.createPublicacion(publicacion), HttpStatus.CREATED);
-        } catch (DataIntegrityViolationException e) {
-            throw new IntegridadDeDatosException("Error: La publicación no pudo guardarse debido a una violación de integridad.");
-        } catch (Exception e) {
-            throw new RuntimeException("Error desconocido al crear la publicación: " + e.getMessage());
-        }
-    }    
-    
+    if (publicacion.getKilometraje() == null || publicacion.getKilometraje() < 0) {
+        response.put("message", "❌ El kilometraje no puede ser negativo.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+        String resultado = publicacionesService.createPublicacion(publicacion);
+        response.put("message", resultado);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    } catch (DataIntegrityViolationException e) {
+        response.put("message", "❌ Error: La publicación no pudo guardarse debido a una violación de integridad.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+        response.put("message", "❌ Error desconocido al crear la publicación: " + e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
 
      @GetMapping("/{idPublicacion}")
     public ResponseEntity<?> buscarPublicacionPorId(@PathVariable int idPublicacion){
@@ -75,7 +88,7 @@ public class PublicacionController {
         }
     }
     @PutMapping("/editar/{idPublicacion}")
-public ResponseEntity<String> editarPublicacion(@PathVariable int idPublicacion, @RequestBody PublicacionesModel publicacion) {
+public ResponseEntity<String> editarPublicacion(@PathVariable Integer idPublicacion, @RequestBody PublicacionesModel publicacion) {
     if (publicacion.getPrecio() == null || publicacion.getPrecio() <= 0) {
         throw new DatosInvalidosException("El precio debe ser mayor a 0.");
     }
@@ -88,9 +101,10 @@ public ResponseEntity<String> editarPublicacion(@PathVariable int idPublicacion,
     }
 
     try {
-        return new ResponseEntity<>(publicacionesService.createPublicacion(publicacion), HttpStatus.CREATED);
+        publicacionesService.updatePublicacion(idPublicacion, publicacion);
+        return new ResponseEntity<>("✅ Publicación actualizada correctamente.", HttpStatus.OK);
     } catch (DataIntegrityViolationException e) {
-        throw new IntegridadDeDatosException("Error: La publicación no pudo guardarse debido a una violación de integridad.");
+        throw new IntegridadDeDatosException("Error: La publicación no pudo actualizarse debido a una violación de integridad.");
     } catch (Exception e) {
         throw new RuntimeException("Error desconocido al crear la publicación: " + e.getMessage());
     }

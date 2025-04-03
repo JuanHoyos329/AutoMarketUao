@@ -5,26 +5,35 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private ResponseEntity<Map<String, String>> buildErrorResponse(String mensaje, HttpStatus status) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", mensaje);  // 🔥 Devolvemos un JSON con clave "message"
+        return new ResponseEntity<>(errorResponse, status);
+    }
+
     @ExceptionHandler(DatosInvalidosException.class)
-    public ResponseEntity<String> handleDatosInvalidosException(DatosInvalidosException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ Datos inválidos: " + e.getMessage());
+    public ResponseEntity<Map<String, String>> handleDatosInvalidosException(DatosInvalidosException e) {
+        return buildErrorResponse("❌ Datos inválidos: " + e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IntegridadDeDatosException.class)
-    public ResponseEntity<String> handleIntegridadDeDatosException(IntegridadDeDatosException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("⚠️ Integridad de datos violada: " + e.getMessage());
+    public ResponseEntity<Map<String, String>> handleIntegridadDeDatosException(IntegridadDeDatosException e) {
+        return buildErrorResponse("⚠️ Integridad de datos violada: " + e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
-    public ResponseEntity<String> handleRecursoNoEncontradoException(RecursoNoEncontradoException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("🔍 Recurso no encontrado: " + e.getMessage());
+    public ResponseEntity<Map<String, String>> handleRecursoNoEncontradoException(RecursoNoEncontradoException e) {
+        return buildErrorResponse("🔍 Recurso no encontrado: " + e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("🚨 Error interno: " + e.getMessage());
+    public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
+        return buildErrorResponse("🚨 Error interno: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -18,14 +18,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         "kilometraje" => $_POST["kilometraje"] ?? 0,
         "tipo_combustible" => htmlspecialchars($_POST["tipo_combustible"] ?? ""),
         "transmision" => htmlspecialchars($_POST["transmision"] ?? ""),
-        "tamano_motor" => (float) ($_POST["tamano_motor"] ?? 0.0), // Forzar a float
+        "tamano_motor" => (float) ($_POST["tamano_motor"] ?? 0.0),
         "puertas" => $_POST["puertas"] ?? 0,
         "ultimo_dueno" => htmlspecialchars($_POST["ultimo_dueno"] ?? ""),
         "descripcion" => htmlspecialchars($_POST["descripcion"] ?? ""),
         "ubicacion" => htmlspecialchars($_POST["ubicacion"] ?? ""),
         "estado" => $_POST["estado"] ?? "Disponible"
     ];
-    
     
     $apiUrl = "http://localhost:8080/automarket/publicaciones/publicar";
     
@@ -38,14 +37,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    
-    if ($httpCode == 200) {
-        header("Location: publicaciones.php");
+
+    $error = json_decode($response, true);
+
+    if ($httpCode == 201) {
+        echo '<div class="alert alert-success text-center">✅ Publicación creada exitosamente. Redirigiendo...</div>';
+        header("Refresh: 2; URL=perfil.php");
         exit();
     } else {
-        echo '<div class="alert alert-danger text-center">❌ Error al conectar con la API. Código HTTP: ' . $httpCode . '</div>';
-    }
+        $errorMessage = "❌ Error al crear la publicación.";
+    
+        // Verifica si hay un mensaje de error específico en la respuesta JSON
+        if (isset($error["message"])) {
+            $errorMessage .= " " . htmlspecialchars($error["message"]);
+        }
+
+        echo '<div class="alert alert-danger text-center">' . $errorMessage . '</div>';
 }
+}
+
+    
+    
 ?>
 
 <!DOCTYPE html>
@@ -60,6 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container mt-5">
         <h2 class="text-center mb-4">🚗 Crear Publicación</h2>
         <form method="POST">
+            <!-- Campos del formulario -->
             <div class="mb-3">
                 <label class="form-label">Marca</label>
                 <input type="text" class="form-control" name="marca" required>
