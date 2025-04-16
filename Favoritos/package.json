@@ -1,20 +1,27 @@
 {
   "name": "favoritosback",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/server.js",
+    "iniciar": "node src/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.8.4",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.48",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
