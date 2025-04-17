@@ -8,7 +8,7 @@ if (!isset($_SESSION["user"]) || !isset($_SESSION["user"]["userId"])) {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["id"])) {
     $id = $_POST["id"];
-    $api_url = "http://localhost:3002/favoritos/$id";
+    $api_url = "http://192.168.100.3:3002/favoritos/$id";
 
     $options = [
         "http" => [

@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["idPublicacion"])) {
     $userId = $_SESSION["user"]["userId"];
     $idPublicacion = $_POST["idPublicacion"];
 
-    $api_url = "http://localhost:3002/favoritos";
+    $api_url = "http://192.168.100.3:3002/favoritos";
     $data = [
         "userId" => $userId,
         "idPublicacion" => $idPublicacion

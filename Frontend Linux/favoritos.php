@@ -7,7 +7,7 @@ if (!isset($_SESSION["user"]) || !isset($_SESSION["user"]["userId"])) {
 }
 
 $userId = $_SESSION["user"]["userId"];
-$api_url = "http://localhost:3002/favoritos/$userId";
+$api_url = "http://192.168.100.3:3002/favoritos/$userId";
 $response = @file_get_contents($api_url);
 $favoritos = $response ? json_decode($response, true)["data"] ?? [] : [];
 ?>

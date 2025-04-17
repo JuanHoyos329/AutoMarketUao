@@ -11,12 +11,12 @@ if (!isset($_SESSION["user"]) || !isset($_SESSION["user"]["userId"])) {
 }
 
 $userId = $_SESSION["user"]["userId"];
-$api_url = "http://localhost:8080/automarket/publicaciones/listarPublicaciones";
+$api_url = "http://192.168.100.3:8080/automarket/publicaciones/listarPublicaciones";
 $response = @file_get_contents($api_url);
 $publicaciones = $response ? json_decode($response, true) : [];
 
 // Obtener favoritos del usuario para mostrar corazón lleno/vacío
-$favoritos_url = "http://localhost:3002/favoritos/$userId";
+$favoritos_url = "http://192.168.100.3:3002/favoritos/$userId";
 $favoritos_response = @file_get_contents($favoritos_url);
 $favoritos = $favoritos_response ? json_decode($favoritos_response, true)["data"] ?? [] : [];
 $favoritosIds = array_column($favoritos, "idPublicacion");
