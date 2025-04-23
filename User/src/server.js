@@ -7,7 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost", "http://localhost:3000"],
+    origin: ["http://192.168.100.2", "http://192.168.100.2:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -24,7 +24,7 @@ sequelize
   .then(() => {
     console.log("Base de datos conectada");
     app.listen(PORT, () => {
-      console.log(`Servidor corriendo en http://localhost:8081`);
+      console.log(`Servidor corriendo en http://192.168.100.2:8081`);
     });
   })
   .catch((err) => console.error("Error al conectar la base de datos:", err));

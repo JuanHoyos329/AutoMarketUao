@@ -1,7 +1,7 @@
--- create database usersautomarketuao;
+create database if not exists usersautomarketuao;
 use usersautomarketuao;
 
-create table users (
+create table if not exists users (
 userId int unique auto_increment not null,
 name varchar(100) not null,
 last_name varchar(100) not null,

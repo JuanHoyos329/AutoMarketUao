@@ -164,15 +164,15 @@ const tramitePost = async (req, res = response) => {
         }
 
         // 1. Obtener el usuario que creó la publicación (userId)
-        const publicacionResponse = await axios.get(`http://localhost:8080/automarket/publicaciones/${idPublicacion}`);
+        const publicacionResponse = await axios.get(`http://192.168.100.2:8080/automarket/publicaciones/${idPublicacion}`);
         const idVendedor = publicacionResponse.data.userId;
 
         // 2. Obtener datos del vendedor
-        const vendedorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${idVendedor}`);
+        const vendedorResponse = await axios.get(`http://192.168.100.2:8081/automarketuao/users/read/id/${idVendedor}`);
         const { name, last_name, phone, email } = vendedorResponse.data;
 
         // 3. Obtener datos del comprador
-        const compradorResponse = await axios.get(`http://localhost:8081/automarketuao/users/read/id/${idComprador}`);
+        const compradorResponse = await axios.get(`http://192.168.100.2:8081/automarketuao/users/read/id/${idComprador}`);
         const { name: nameComprador, last_name: lastNameComprador, phone: phoneComprador, email: emailComprador } = compradorResponse.data;
 
         // 4. Obtener información del vehículo desde la publicación

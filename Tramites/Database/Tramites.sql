@@ -7,7 +7,7 @@ COLLATE utf8mb4_general_ci;
 USE backtramites;
 
 -- Crear la tabla tramites
-CREATE TABLE IF NOT EXISTS tramites (
+CREATE TABLE IF NOT EXISTS Tramites (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_vendedor INT(11) NOT NULL,
     user_vendedor VARCHAR(30) NOT NULL,
@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS tramites (
     Traspaso TINYINT(1) NOT NULL,
     entrega TINYINT(1) NOT NULL,
     fecha_fin DATETIME NULL,
-    estado VARCHAR(10) NOT NULL,
-    CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
-);
+    estado VARCHAR(10) NOT NULL
+    
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
