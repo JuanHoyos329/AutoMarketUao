@@ -1,7 +1,4 @@
-version: "3.9"
-
 services:
-  # 🔹 Base de datos de usuarios
   db-user:
     image: juanhoyos329/mysql-automarketuao:v1
     environment:
@@ -13,14 +10,24 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - automarketuao
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
 
-  # 🔹 Servicio de usuarios
   user-service:
     image: juanhoyos329/user-service:latest
     ports:
       - "8081:8081"
     networks:
       - automarketuao
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+ 
 
   # 🔹 Base de datos de publicaciones
   db-publicaciones:
