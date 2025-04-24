@@ -1,4 +1,7 @@
+version: '3.8'
+
 services:
+  # 🔹 Base de datos de usuarios
   db-user:
     image: juanhoyos329/mysql-automarketuao:v1
     environment:
@@ -16,6 +19,7 @@ services:
         constraints:
           - node.role == worker
 
+  # 🔹 Servicio de usuarios
   user-service:
     image: juanhoyos329/user-service:latest
     ports:
@@ -27,7 +31,6 @@ services:
       placement:
         constraints:
           - node.role == worker
- 
 
   # 🔹 Base de datos de publicaciones
   db-publicaciones:
@@ -79,13 +82,11 @@ services:
       DB_NAME: backtramites
     networks:
       - automarketuao
-
 volumes:
-  publicaciones_data:
   mysql-data:
   mysql-data-tramites:
+  publicaciones_data:
 
 networks:
   automarketuao:
     driver: overlay
-
