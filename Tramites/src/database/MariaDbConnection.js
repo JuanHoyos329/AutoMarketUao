@@ -5,7 +5,7 @@ const bdmysql = new Sequelize(
     'root', //Usuario
     'root', //Contraseña
     {
-        host: 'localhost', //Nombre Host
+        host: 'db-tramites', //Nombre Host
         dialect: 'mysql' // MYSQL
     }
 );
