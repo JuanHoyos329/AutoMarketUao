@@ -29,7 +29,12 @@ $isAdmin = ($user["role"] === "admin"); // Verificar si es administrador
         <div class="card shadow-lg p-4">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="mb-0">Perfil de Usuario</h2>
-                <a href="eliminarUsuario.php?username=<?= $user["username"] ?>" class="btn btn-danger btn-sm" onclick="return confirmarEliminacion();">Eliminar Cuenta</a>
+
+                <!-- Formulario para eliminar usuario con método POST -->
+                <form id="deleteForm" action="eliminarUsuario.php" method="POST" onsubmit="return confirmarEliminacion();">
+                    <input type="hidden" name="username" value="<?= $user["username"] ?>">
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar Cuenta</button>
+                </form>
             </div>
             
             <hr>
@@ -47,7 +52,7 @@ $isAdmin = ($user["role"] === "admin"); // Verificar si es administrador
                 <?php endforeach; ?>
             </ul>
 
-            <!-- 📌 Botones organizados en dos columnas -->
+            <!-- Botones -->
             <div class="d-flex justify-content-center mt-4">
                 <div class="me-2">
                     <a href="actualizarUsuario.php?username=<?= $user["username"] ?>" class="btn btn-warning">Editar Información</a>
@@ -66,7 +71,7 @@ $isAdmin = ($user["role"] === "admin"); // Verificar si es administrador
                 </div>
             </div>
 
-            <!-- 🔻 Botón Cerrar Sesión centrado al final -->
+            <!-- Botón Cerrar Sesión -->
             <div class="text-center mt-4">
                 <a href="index.php" class="btn btn-secondary">Cerrar Sesión</a>
             </div>
@@ -76,3 +81,4 @@ $isAdmin = ($user["role"] === "admin"); // Verificar si es administrador
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

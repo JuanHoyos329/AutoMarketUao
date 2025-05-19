@@ -26,11 +26,6 @@ services:
       - "8081:8081"
     networks:
       - automarketuao
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
 
   # 🔹 Base de datos de publicaciones
   db-publicaciones:
@@ -44,6 +39,11 @@ services:
       - publicaciones_data:/var/lib/mysql
     networks:
       - automarketuao
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
 
   # 🔹 Servicio de publicaciones
   publicaciones-service:
@@ -69,6 +69,11 @@ services:
       - mysql-data-tramites:/var/lib/mysql
     networks:
       - automarketuao
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
 
   # 🔹 Servicio de trámites
   tramites-service:
@@ -82,10 +87,40 @@ services:
       DB_NAME: backtramites
     networks:
       - automarketuao
+
+  # 🔹 Servicio de Favoritos
+  favoritos-service:
+    image: fabiaangzc/favoritos-api:latest
+    ports:
+      - "8083:8083"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: favoritosdb
+    networks:
+      - automarketuao
+    
+  # 🔹 Base de datos de Favoritos
+  db-favoritos:
+    image: fabiaangzc/favoritos-mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: root
+    ports:
+      - "3309:3306"
+    volumes:
+      - favoritos-data:/var/lib/mysql
+    networks:
+      - automarketuao
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
 volumes:
   mysql-data:
   mysql-data-tramites:
   publicaciones_data:
+  favoritos-data:
 
 networks:
   automarketuao:

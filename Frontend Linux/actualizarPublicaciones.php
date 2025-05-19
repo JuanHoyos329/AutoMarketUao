@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         "estado" => $_POST["estado"] ?? "Disponible"
     ];
 
-    $updateUrl = "http://localhost:8080/automarket/publicaciones/editar/" . $idPublicacion;
+    $updateUrl = "http://192.168.100.3:8080/automarket/publicaciones/editar/" . $idPublicacion;
 
     $ch = curl_init($updateUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
