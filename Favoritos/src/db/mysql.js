@@ -1,7 +1,7 @@
 const mysql = require("mysql2/promise");
 
 const connection = mysql.createPool({
-    host: "192.168.100.3",
+    host: "favoritos-mysql",
     user: "root",
     password: "root", 
     database: "favoritosdb", 
@@ -9,6 +9,3 @@ const connection = mysql.createPool({
 });
 
 module.exports = connection;
-
-
-

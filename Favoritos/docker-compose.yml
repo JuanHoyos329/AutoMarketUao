@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  node-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - favoritos-mysql
+    environment:
+      - PUBLICACIONES_SERVICE_URL=http://host.docker.internal:8080
+      - DB_HOST=favoritos-mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=favoritosdb
+
+  favoritos-mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: favoritosdb
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mysql_data:
+

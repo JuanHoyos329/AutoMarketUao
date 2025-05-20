@@ -26,6 +26,10 @@ services:
       - "8081:8081"
     networks:
       - automarketuao
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   # 🔹 Base de datos de publicaciones
   db-publicaciones:
@@ -56,6 +60,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: annie
     networks:
       - automarketuao
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   # 🔹 Base de datos de trámites
   db-tramites:
@@ -87,24 +95,17 @@ services:
       DB_NAME: backtramites
     networks:
       - automarketuao
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
-  # 🔹 Servicio de Favoritos
-  favoritos-service:
-    image: fabiaangzc/favoritos-api:latest
-    ports:
-      - "8083:8083"
+  # 🔹 Base de datos de Favoritos
+  db-favoritos:
+    image: juanhoyos329/favoritos-mysql:v1
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: favoritosdb
-    networks:
-      - automarketuao
-    
-  # 🔹 Base de datos de Favoritos
-  db-favoritos:
-    image: fabiaangzc/favoritos-mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: root
     ports:
       - "3309:3306"
     volumes:
@@ -116,6 +117,39 @@ services:
       placement:
         constraints:
           - node.role == worker
+
+  # 🔹 Servicio de Favoritos
+  favoritos-service:
+    image: fabiaangzc/favoritos-api:v1
+    ports:
+      - "3002:3002"
+    environment:
+      - PUBLICACIONES_SERVICE_URL=http://publicaciones-service:8080
+      - DB_HOST=db-favoritos
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=favoritosdb
+    networks:
+      - automarketuao
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  # 🔹 Frontend
+  frontend:
+    image: juanhoyos329/frontend:v1
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - automarketuao
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
 volumes:
   mysql-data:
   mysql-data-tramites:
