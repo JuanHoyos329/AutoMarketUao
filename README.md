@@ -39,7 +39,7 @@ docker stack deploy -c docker-stack.yml automarketuao
 
 ---
 
-### 4. Subir y restaurar bases de datos
+### 2. Subir y restaurar bases de datos
 
 Copiar los archivos SQL a la carpeta compartida de Vagrant.
 Aqui nosotros creamos un directorio en vagrant llamado Databases, en caso de no tenerlo creele usando:
