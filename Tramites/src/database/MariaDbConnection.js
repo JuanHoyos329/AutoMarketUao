@@ -5,25 +5,12 @@ const bdmysql = new Sequelize(
     'root', //Usuario
     'root', //Contraseña
     {
-        host: 'db-tramites', //Nombre Host
+        host: 'mysql', //Nombre Host
         dialect: 'mysql' // MYSQL
     }
 );
 
-const bdmysql1 = new Sequelize(
-    'test',
-    'root',
-    'root',
-    {
-        host: 'localhost',
-        port: '8082',
-        dialect: 'mariadb' //MariaDB
-    }
-);
-
-
 
 module.exports = {
     bdmysql,
-    bdmysql1
 }
