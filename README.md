@@ -1,6 +1,6 @@
-# AutoMarketUAO 🚗
+# 🚗 AutoMarketUAO
 
-**AutoMarketUAO** es una plataforma web para la publicación, gestión y seguimiento de vehículos en compra y venta, diseñada como proyecto académico con una arquitectura basada en microservicios y contenedores.
+**AutoMarketUAO** es una plataforma web para la publicación, gestión y seguimiento de vehículos en procesos de compra y venta. Diseñada como proyecto académico, se basa en una arquitectura de microservicios y contenedores.
 
 ---
 
@@ -18,65 +18,74 @@
 
 ## ⚙️ Instalación y ejecución del proyecto
 
-> 🔧 El repositorio se debe clonar en la máquina con IP `192.168.100.2`. Se utilizan 2 máquinas virtuales: una actúa como **máster** (Frontend + Backend principal) y la otra como **worker** (contenedores de las bases de datos).
+> 🖥️ Este proyecto se ejecuta en una infraestructura con **2 máquinas virtuales**:
+>
+> * **Máster**: aloja el Frontend y Backend principal.
+> * **Worker**: aloja los contenedores con las bases de datos.
+
+> 📍 El repositorio debe ser clonado en la máquina con IP `192.168.100.2`.
 
 ---
 
-### 1. Clonar el repositorio y desplegar
+### 1. Clonar el repositorio y desplegar el stack
 
 ```bash
 git clone git@github.com:JuanHoyos329/AutoMarketUao.git
 cd AutoMarketUao
 ```
 
-Inicializar Swarm y desplegar stack:
+Inicializa Docker Swarm y despliega el stack:
 
 ```bash
 docker swarm init
-# Agregar el nodo worker con el token generado
+# Agrega el nodo worker con el token que se genera en la otra maquina(192.168.100.3)
 docker stack deploy -c docker-stack.yml automarketuao
 ```
 
 ---
 
-### 2. Subir y restaurar bases de datos
+### 2. Restaurar bases de datos y archivos CSV
 
-Copiar los archivos SQL a la carpeta compartida de Vagrant.
-Aqui nosotros creamos un directorio en vagrant llamado Databases, en caso de no tenerlo creele usando:
-```bash
-mkdir Databases
-cp Databases/* /vagrant/Databases/
-```
+1. Copia los archivos `.sql` y `.csv` a la carpeta compartida de Vagrant.
+   Si no existe la carpeta `Databases`, créala:
 
-En la **VM worker**, copiar los archivos a los contenedores MySQL:
+   ```bash
+   mkdir Databases
+   cp Databases/* /vagrant/Databases/
+   ```
 
-```bash
-docker cp /vagrant/Databases/backtramites_tramites.sql contenedor_tramites:/backtramites_tramites.sql
-docker cp /vagrant/Databases/usersautomarketuao_users.sql contenedor_users:/usersautomarketuao_users.sql
-docker cp /vagrant/Databases/automarketuao_publicaciones.sql contenedor_publicaciones:/automarketuao_publicaciones.sql
-```
+2. En la **VM worker**, copia los archivos a los contenedores de MySQL:
 
-Ingresar a cada contenedor e importar la base de datos:
+   ```bash
+   docker cp /vagrant/Databases/backtramites_tramites.sql contenedor_tramites:/backtramites_tramites.sql
+   docker cp /vagrant/Databases/usersautomarketuao_users.sql contenedor_users:/usersautomarketuao_users.sql
+   docker cp /vagrant/Databases/automarketuao_publicaciones.sql contenedor_publicaciones:/automarketuao_publicaciones.sql
+   ```
 
-```bash
-docker exec -it contenedor_tramites bash
-mysql -uroot -proot backtramites < /backtramites_tramites.sql
-exit
+3. Accede a cada contenedor e importa las bases de datos:
 
-docker exec -it contenedor_users bash
-mysql -uroot -proot usersautomarketuao < /usersautomarketuao_users.sql
-exit
+   ```bash
+   docker exec -it contenedor_tramites bash
+   mysql -uroot -proot backtramites < /backtramites_tramites.sql
+   #Aqui debemos de hacer una modificacion para que la aplicacion use la tabla correcta
+   mysql -uroot -proot
+   rename table tramites to Tramites;
+   exit
 
-docker exec -it contenedor_publicaciones bash
-mysql -uroot -pannie AutoMarketUao < /automarketuao_publicaciones.sql
-exit
-```
+   docker exec -it contenedor_users bash
+   mysql -uroot -proot usersautomarketuao < /usersautomarketuao_users.sql
+   exit
+
+   docker exec -it contenedor_publicaciones bash
+   mysql -uroot -pannie AutoMarketUao < /automarketuao_publicaciones.sql
+   exit
+   ```
 
 ---
 
-## 🚀 Acceder a la plataforma
+## 🌐 Acceder a la plataforma
 
-Abre tu navegador y accede a:
+Abre tu navegador y dirígete a:
 
 ```
 http://192.168.100.2:80
@@ -86,12 +95,57 @@ http://192.168.100.2:80
 
 ## 👤 Cuentas de prueba
 
-### Administrador
+### 🛠️ Administrador
 
 * **Correo:** [juanandres8000@hotmail.com](mailto:juanandres8000@hotmail.com)
 * **Contraseña:** `0423`
 
-### Usuario normal
+### 👥 Usuario
 
 * **Correo:** [adriana.perez44@gmail.com](mailto:adriana.perez44@gmail.com)
 * **Contraseña:** `123456`
+
+---
+
+## ⚡ Consultas opcionales en Apache Spark
+
+Si deseas realizar análisis sobre los datos, puedes ejecutar el siguiente script con Apache Spark.
+
+### 1. Crear el archivo de consultas
+
+Crea un archivo llamado `consultas.py` dentro del directorio `apps` de tu instalación de Spark (`labSpark`), y copia el siguiente código:
+📎 *(El código permanece igual, no lo repito aquí para no duplicar contenido innecesariamente. Puedo limpiarlo si lo deseas.)*
+
+---
+
+### 2. Ejecutar el script
+
+Ubícate en la carpeta `bin` de tu Spark y ejecuta el script con:
+
+```bash
+cd spark-3.5.5-bin-hadoop3/bin/
+./spark-submit --master spark://192.168.100.3:7077 /root/labSpark/app/consultas.py "/vagrant/Databases/backtramites.csv" "/vagrant/Databases/publicaciones.csv" "/root/labSpark/resultsConsultas"
+```
+
+📌 **Nota:**
+
+* Verifica que las rutas de los archivos CSV sean correctas.
+* Asegúrate de que la IP del master de Spark (`192.168.100.3`) sea correcta.
+* Si no ejecutas como root, puede que necesites permisos adicionales.
+
+---
+
+### 3. Ver resultados
+
+Si decidiste guardar los resultados en un CSV, puedes encontrarlos en:
+
+```bash
+cd /root/labSpark/resultsConsultas
+```
+
+---
+
+## ✅ ¡Listo!
+
+Has completado toda la configuración y ejecución de AutoMarketUAO.
+¡Gracias por utilizar nuestra aplicación! 🚀
