@@ -124,8 +124,6 @@ const Tramites = bdmysql.define('Tramites',
     }
 );
 
-
-
 module.exports = {
     Tramites,
 }

@@ -2,7 +2,7 @@ const axios = require('axios');
 const mysql = require("../db/mysql");
 
 // URL base del microservicio de publicaciones
-const PUBLICACIONES_SERVICE_URL = process.env.PUBLICACIONES_SERVICE_URL || "http://192.168.100.3:8080"; 
+const PUBLICACIONES_SERVICE_URL = process.env.PUBLICACIONES_SERVICE_URL || "http://localhost:8080"; 
 
 const agregarFavorito = async (req, res) => {
     const { userId, idPublicacion } = req.body;
