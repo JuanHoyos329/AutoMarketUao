@@ -1,460 +1,400 @@
 <?php
-// Función para leer CSV limpiando encabezados extra
-function leerCSV($ruta) {
-    $datos = [];
-    if (($gestor = fopen($ruta, "r")) !== FALSE) {
-        $encabezados = fgetcsv($gestor);
-        $indiceEstado = array_search("estado", $encabezados);
-        $encabezados = array_slice($encabezados, 0, $indiceEstado + 1);
+$csvFile = 'consultas_total.csv';
+$datos = [];
 
-        while (($fila = fgetcsv($gestor)) !== FALSE) {
-            $fila = array_slice($fila, 0, count($encabezados));
-            if (count($fila) === count($encabezados)) {
-                $datos[] = array_combine($encabezados, $fila);
-            }
+if (($handle = fopen($csvFile, 'r')) !== false) {
+    $headers = fgetcsv($handle);
+    while (($row = fgetcsv($handle)) !== false) {
+        $categoria = $row[0];
+        $valor = (float)$row[1];
+        $consulta = $row[2];
+
+        if (!isset($datos[$consulta])) {
+            $datos[$consulta] = [];
         }
-        fclose($gestor);
+
+        $datos[$consulta][] = [
+            'categoria' => $categoria,
+            'valor' => $valor
+        ];
     }
-    return $datos;
+    fclose($handle);
 }
 
-function leerCSVPublicaciones($ruta) {
-    $datos = [];
-    if (($gestor = fopen($ruta, "r")) !== FALSE) {
-        $encabezados = fgetcsv($gestor);
-        while (($fila = fgetcsv($gestor)) !== FALSE) {
-            if (count($fila) === count($encabezados)) {
-                $filaAsociativa = array_combine($encabezados, $fila);
-                // Asociamos por idPublicacion para acceso rápido
-                $datos[$filaAsociativa['idPublicacion']] = $filaAsociativa;
-            }
-        }
-        fclose($gestor);
-    }
-    return $datos;
+function tipoVisualizacion($consulta) {
+    return match($consulta) {
+        "Trámites por estado" => "bar",
+        "Paso donde más se cancelan trámites" => "pie",
+        "Promedio de duración de trámites" => "boton",
+        "Promedio días publicación a finalización" => "boton",
+        "Promedio precio por marca y año" => "horizontalBar",
+        "Porcentaje por ciudad" => "tabla",
+        "Ventas por marca" => "doughnut",
+        default => "bar",
+    };
 }
-
-// Función para quitar tildes
-function quitarTildes($cadena) {
-    $originales = 'áéíóúÁÉÍÓÚñÑ';
-    $modificadas = 'aeiouAEIOUnN';
-    return strtr($cadena, $originales, $modificadas);
-}
-
-// Leer archivo CSV
-$tramites = leerCSV("backtramites.csv");
-$publicacionesRaw = leerCSV("publicaciones.csv");
-$publicaciones = [];
-foreach ($publicacionesRaw as $publi) {
-    $id = $publi["idPublicacion"];
-    $publicaciones[$id] = $publi;
-}
-
-// Contar trámites por estado
-$conteoEstados = [
-    "Finalizado" => 0,
-    "Cancelado" => 0,
-    "activo" => 0
-];
-foreach ($tramites as $t) {
-    $estado = strtolower(trim($t["estado"]));
-    if ($estado === "finalizado") $conteoEstados["Finalizado"]++;
-    if ($estado === "cancelado")  $conteoEstados["Cancelado"]++;
-    if ($estado === "activo")     $conteoEstados["activo"]++;
-}
-
-// Calcular porcentaje por estado
-$totalTramites = array_sum($conteoEstados);
-$porcentajes = [];
-foreach ($conteoEstados as $estado => $cantidad) {
-    $porcentajes[$estado] = $totalTramites > 0 ? round(($cantidad / $totalTramites) * 100, 2) : 0;
-}
-
-// Analizar pasos donde más se cancelan
-$pasos = ["revision_doc", "cita", "contrato", "pago", "Traspaso", "entrega"];
-$cancelacionesPorPaso = array_fill_keys($pasos, 0);
-
-foreach ($tramites as $t) {
-    if (strtolower(trim($t["estado"])) === "cancelado") {
-        foreach ($pasos as $paso) {
-            if (isset($t[$paso]) && $t[$paso] == "0") {
-                $cancelacionesPorPaso[$paso]++;
-            }
-        }
-    }
-}
-
-// 📊 Calcular promedio de días desde publicación hasta finalización
-$totalDiasPublicacion = [];
-
-foreach ($tramites as $tramite) {
-    if (strtolower($tramite["estado"]) === "finalizado") {
-        $idVehiculo = $tramite["id_vehiculo"];
-        if (isset($publicaciones[$idVehiculo])) {
-            $fechaPublicacion = new DateTime($publicaciones[$idVehiculo]["fecha_publicacion"]);
-            $fechaFin = new DateTime($tramite["fecha_fin"]);
-
-            $interval = $fechaPublicacion->diff($fechaFin);
-            $totalDiasPublicacion[] = $interval->days;
-        }
-    }
-}
-
-// 📊 Conteo de publicaciones por marca
-$conteoMarcas = [];
-
-foreach ($publicaciones as $publi) {
-    $marca = $publi["marca"];
-    if (!isset($conteoMarcas[$marca])) {
-        $conteoMarcas[$marca] = 0;
-    }
-    $conteoMarcas[$marca]++;
-}
-
-$promedioDiasPublicacionAFin = count($totalDiasPublicacion) > 0
-    ? round(array_sum($totalDiasPublicacion) / count($totalDiasPublicacion))
-    : 0;
-
-// 🔍 Leer publicaciones y agrupar por marca
-$publicaciones = leerCSV("publicaciones.csv");
-
-$datosPorMarca = [];
-
-foreach ($publicaciones as $publi) {
-    $marca = $publi["marca"];
-    $modelo = $publi["modelo"];
-    $ano = $publi["ano"];
-    $precio = (float) $publi["precio"];
-
-    $clave = $modelo . " " . $ano;
-
-    if (!isset($datosPorMarca[$marca][$clave])) {
-        $datosPorMarca[$marca][$clave] = ["total" => 0, "conteo" => 0];
-    }
-
-    $datosPorMarca[$marca][$clave]["total"] += $precio;
-    $datosPorMarca[$marca][$clave]["conteo"] += 1;
-}
-
-// 💰 Calcular promedios
-$promediosPorMarca = [];
-foreach ($datosPorMarca as $marca => $modelos) {
-    foreach ($modelos as $modeloAno => $valores) {
-        $promedio = round($valores["total"] / $valores["conteo"], 2);
-        $promediosPorMarca[$marca][$modeloAno] = $promedio;
-    }
-}
-
-// 📍 Agrupar publicaciones por ciudad
-$conteoPorCiudad = [];
-
-foreach ($publicaciones as $publi) {
-    $ciudad = $publi["ubicacion"];
-
-    if (!isset($conteoPorCiudad[$ciudad])) {
-        $conteoPorCiudad[$ciudad] = 0;
-    }
-    $conteoPorCiudad[$ciudad]++;
-}
-
-// 🎯 Calcular porcentaje por ciudad
-$totalPublicaciones = array_sum($conteoPorCiudad);
-$porcentajePorCiudad = [];
-
-foreach ($conteoPorCiudad as $ciudad => $cantidad) {
-    $porcentaje = round(($cantidad / $totalPublicaciones) * 100, 2);
-    $porcentajePorCiudad[$ciudad] = $porcentaje;
-}
-
-// 📍 Conteo de publicaciones por ciudad (solo ciudades válidas)
-$ciudadesValidas = [
-    "bogota", "medellin", "cali", "barranquilla", "cartagena", "cucuta",
-    "bucaramanga", "pereira", "santa marta", "ibague", "manizales", "villavicencio",
-    "pasto", "neiva", "armenia", "monteria", "popayan", "sincelejo", "valledupar",
-    "tunja", "riohacha", "quibdo", "florencia", "yopal", "mocoa", "leticia"
-    // Agrega más si lo deseas
-];
-
-$conteoPorCiudad = [];
-foreach ($publicaciones as $publi) {
-    $ciudadOriginal = trim($publi["ubicacion"]);
-    $ciudadNormalizada = strtolower(quitarTildes($ciudadOriginal));
-    if (in_array($ciudadNormalizada, $ciudadesValidas)) {
-        $ciudadMostrar = ucwords($ciudadOriginal); // Muestra con tildes si las tiene
-        if (!isset($conteoPorCiudad[$ciudadMostrar])) {
-            $conteoPorCiudad[$ciudadMostrar] = 0;
-        }
-        $conteoPorCiudad[$ciudadMostrar]++;
-    }
-}
-
-// 🎯 Calcular porcentaje por ciudad y top 10
-$totalPublicaciones = array_sum($conteoPorCiudad);
-$porcentajePorCiudad = [];
-foreach ($conteoPorCiudad as $ciudad => $cantidad) {
-    $porcentajePorCiudad[$ciudad] = $totalPublicaciones > 0 ? round(($cantidad / $totalPublicaciones) * 100, 2) : 0;
-}
-arsort($porcentajePorCiudad);
-$topCiudades = array_slice($porcentajePorCiudad, 0, 10, true);
-
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Trámites | AutoMarketUAO</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard de trámites</title>
+
+<!-- Bootstrap 5 CSS para diseño responsivo -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    body {
+        background: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 2rem;
+    }
+    h1 {
+        color: #212529;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+        letter-spacing: 1.5px;
+    }
+    .card {
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgb(0 0 0 / 0.15);
+    }
+    .card-header {
+        font-weight: 600;
+        font-size: 1.25rem;
+        background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+        color: white;
+        border-radius: 1rem 1rem 0 0;
+        text-align: center;
+    }
+    .value-button {
+        font-size: 2.5rem;
+        color: #0d6efd;
+        font-weight: 700;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        background: #e7f1ff;
+        margin: 2rem auto;
+        width: fit-content;
+        box-shadow: 0 4px 15px rgb(13 110 253 / 0.3);
+        user-select: none;
+    }
+    table {
+        margin-top: 1rem;
+    }
+    th {
+        background-color: #0d6efd;
+        color: white;
+        text-align: center;
+    }
+    td, th {
+        padding: 0.75rem;
+        text-align: center;
+    }
+    select.form-select {
+        max-width: 200px;
+        margin-bottom: 1rem;
+    }
+    canvas {
+        max-height: 400px !important;
+    }
+</style>
 </head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">📊 Dashboard de Trámites - AutoMarketUAO</h2>
+<body>
 
-        <!-- Tarjetas resumen -->
-        <div class="row text-center mb-4">
-            <?php foreach ($conteoEstados as $estado => $cantidad): ?>
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5><?= ucfirst($estado) ?></h5>
-                        <p class="fs-3"><?= $cantidad ?></p>
-                    </div>
+<h1>Dashboard de trámites </h1>
+
+<div class="container">
+    
+    <!-- Trámites por estado -->
+    <div class="row g-4 mb-5 justify-content-center">
+        <?php
+        $tramites = ['Finalizado' => 0, 'Cancelado' => 0, 'activo' => 0];
+        $totalTramites = 0;
+        foreach ($datos['1 - Trámites por estado'] ?? [] as $row) {
+            $tramites[$row['categoria']] = intval($row['valor']);
+            $totalTramites += intval($row['valor']);
+        }
+        foreach ($tramites as $estado => $valor):
+        ?>
+        <div class="col-12 col-sm-6 col-md-4">
+            <div class="card text-center p-4">
+                <div class="card-header"><?= htmlspecialchars($estado) ?></div>
+                <div class="value-button"><?= $valor ?></div>
+                <div class="text-muted fw-semibold">
+                    <?= $totalTramites > 0 ? round(($valor / $totalTramites) * 100, 2) . '%' : '0%' ?>
                 </div>
             </div>
-            <?php endforeach; ?>
         </div>
+        <?php endforeach; ?>
+    </div>
 
-        <!-- Porcentajes por estado -->
-        <div class="text-center mb-5">
-            <h5>📌 Porcentaje de trámites por estado:</h5>
-            <ul class="list-unstyled">
-                <?php foreach ($porcentajes as $estado => $porc): ?>
-                    <li><strong><?= ucfirst($estado) ?>:</strong> <?= $porc ?>%</li>
+    <!-- Promedios en botones -->
+    <div class="row g-4 mb-5 justify-content-center">
+        <?php
+        $consultasBoton = [
+            '5 - Promedio días publicación a finalización' => 'Promedio de dias al hacer una publicación a finalización del tramite'
+        ];
+        foreach ($consultasBoton as $key => $label):
+            $valor = 0;
+            if (isset($datos[$key]) && count($datos[$key]) > 0) {
+                $valor = $datos[$key][0]['valor'];
+            }
+        ?>
+        <div class="col-12 col-sm-6 col-md-4">
+            <div class="card text-center p-4">
+                <div class="card-header"><?= $label ?></div>
+                <div class="value-button"><?= $valor ?></div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+
+    <!-- Paso donde más se cancelan trámites - gráfica barra -->
+    <div class="card p-4 mb-5">
+        <div class="card-header">Paso donde más se cancelan trámites</div>
+        <canvas id="graficaCancelaciones"></canvas>
+    </div>
+    
+    <!-- Publicaciones por marca - gráfica pie -->
+    <div class="card p-4 mb-5">
+        <div class="card-header">Porcentaje de Publicaciones por marca</div>
+        <canvas id="publicacionesPieChart"></canvas>
+    </div>
+
+    <?php
+$promPrecioItems = $datos['7 - Promedio precio por marca y año'] ?? [];
+
+// Separar marcas y modelos
+$marcas = [];
+$modelos = [];
+foreach ($promPrecioItems as $item) {
+    $partes = explode(' ', $item['categoria']);
+    $marca = $partes[0] ?? '';
+    $modelo = $partes[1] ?? '';
+    if ($marca) $marcas[] = $marca;
+    if ($modelo) $modelos[] = $modelo;
+}
+
+$marcas = array_unique($marcas);
+$modelos = array_unique($modelos);
+sort($marcas);
+sort($modelos);
+?>
+
+<div class="card p-4 mb-5">
+    <div class="card-header">7 - Promedio precio por marca y año</div>
+
+    <div class="row mb-3 mt-2">
+        <div class="col">
+            <label for="marcaFiltroPrecio">Filtrar por marca:</label>
+            <select id="marcaFiltroPrecio" class="form-select">
+                <option value="">Todas</option>
+                <?php foreach ($marcas as $marca): ?>
+                    <option value="<?= htmlspecialchars($marca) ?>"><?= htmlspecialchars($marca) ?></option>
                 <?php endforeach; ?>
-            </ul>
+            </select>
         </div>
-
-        <!-- Gráfico de pastel -->
-        <div class="card shadow mb-4">
-            <div class="card-body d-flex justify-content-center">
-                <div style="max-width:350px; width:100%;">
-                    <h5 class="text-center">Distribución de Trámites por Estado</h5>
-                    <canvas id="graficoEstados" height="60"></canvas>
-                </div>
-            </div>
+        <div class="col">
+            <label for="modeloFiltroPrecio">Filtrar por modelo:</label>
+            <select id="modeloFiltroPrecio" class="form-select">
+                <option value="">Todos</option>
+                <?php foreach ($modelos as $modelo): ?>
+                    <option value="<?= htmlspecialchars($modelo) ?>"><?= htmlspecialchars($modelo) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
+    </div>
 
-        <!-- Gráfico de barras: pasos con más cancelaciones -->
-        <div class="card shadow mb-5">
-            <div class="card-body d-flex justify-content-center">
-                <div style="max-width:600px; width:100%;">
-                    <h5 class="text-center">📉 Paso donde más se cancelan los trámites</h5>
-                    <canvas id="graficoCancelaciones" height="120"></canvas>
-                </div>
-            </div>
-        </div>
+    <canvas id="promPrecioChart"></canvas>
+</div>
 
-        <!-- Promedio de días desde publicación hasta finalización -->
-        <div class="card shadow mt-4 mb-5">
-            <div class="card-body text-center">
-                <h5 class="mb-3">⏳ Promedio de Días desde la Publicación hasta la Finalización</h5>
-                <h2 class="text-primary"><?= $promedioDiasPublicacionAFin ?> días</h2>
-                <p class="text-muted">Calculado solo para los trámites finalizados</p>
-            </div>
-        </div>
+<script>
+    const allPrecioItems = <?= json_encode($promPrecioItems) ?>;
 
-        <!-- Gráfico de publicaciones por marca -->
-        <div class="card shadow mb-4 mt-4">
-            <div class="card-body">
-                <h5 class="text-center mb-3">🚘 Publicaciones por Marca</h5>
-                <canvas id="graficoMarcas" height="100"></canvas>
-            </div>
-        </div>
-
-        <!-- Filtro y gráfico de promedio por modelo y año -->
-        <div class="card shadow mb-4 mt-4">
-            <div class="card-body">
-                <h5 class="text-center">💸 Promedio de Precio por Modelo y Año (por Marca)</h5>
-                <div class="mb-3 text-center">
-                    <label for="marcaSelect" class="form-label">Selecciona una marca:</label>
-                    <select id="marcaSelect" class="form-select w-50 mx-auto">
-                        <?php foreach (array_keys($promediosPorMarca) as $marca): ?>
-                            <option value="<?= $marca ?>"><?= $marca ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <canvas id="graficoPrecioMarca" height="120"></canvas>
-            </div>
-        </div>
-        
-        <!-- ... (en la sección HTML donde quieras el gráfico) ... -->
-        <div class="card shadow mt-4 mb-5">
-            <div class="card-body">
-                <h5 class="text-center">📍 Porcentaje de Publicaciones por Ciudad (Top 10)</h5>
-                <canvas id="graficoCiudades"></canvas>
-            </div>
-        </div>
-    <script>
-    // Gráfico de pastel
-    const ctx = document.getElementById("graficoEstados").getContext("2d");
-    new Chart(ctx, {
-        type: "pie",
-        data: {
-            labels: <?= json_encode(array_keys($conteoEstados)) ?>,
-            datasets: [{
-                label: "Trámites",
-                data: <?= json_encode(array_values($conteoEstados)) ?>,
-                backgroundColor: ["#198754", "#dc3545", "#0d6efd"],
-                borderColor: "#fff",
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: "bottom"
-                }
-            }
-        }
-    });
-
-    // Gráfico de barras: cancelaciones por paso
-    const cancelCtx = document.getElementById("graficoCancelaciones").getContext("2d");
-    new Chart(cancelCtx, {
-        type: "bar",
-        data: {
-            labels: <?= json_encode(array_keys($cancelacionesPorPaso)) ?>,
-            datasets: [{
-                label: "Trámites cancelados con ese paso en 0",
-                data: <?= json_encode(array_values($cancelacionesPorPaso)) ?>,
-                backgroundColor: "#dc3545"
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Cantidad de cancelaciones"
-                    }
-                }
-            }
-        }
-    });
-
-    const ctxMarcas = document.getElementById("graficoMarcas").getContext("2d");
-
-    //Publicaciones por Marca
-    new Chart(ctxMarcas, {
-        type: "bar",
-        data: {
-            labels: <?= json_encode(array_keys($conteoMarcas)) ?>,
-            datasets: [{
-                label: "Cantidad de publicaciones",
-                data: <?= json_encode(array_values($conteoMarcas)) ?>,
-                backgroundColor: "#0d6efd"
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
-            },
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
-
-    const datosPorMarca = <?= json_encode($promediosPorMarca) ?>;
-
-    const ctxMarca = document.getElementById("graficoPrecioMarca").getContext("2d");
-    let grafico;
-
-    function crearGrafico(marca) {
-        const datos = datosPorMarca[marca];
-        const labels = Object.keys(datos);
-        const valores = Object.values(datos);
-
-        if (grafico) {
-            grafico.destroy();
-        }
-
-        grafico = new Chart(ctxMarca, {
-            type: "bar",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: `Promedio de precios - ${marca}`,
-                    data: valores,
-                    backgroundColor: "#0d6efd"
-                }]
-            },
-            options: {
-                responsive: true,
-                indexAxis: "y",
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => "$" + ctx.raw } }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: { display: true, text: "Precio en USD" }
-                    }
-                }
-            }
+    function filtrarPorMarcaYModelo(marca, modelo) {
+        let filtrados = allPrecioItems.filter(item => {
+            const [itemMarca, itemModelo] = item.categoria.split(' ');
+            const coincideMarca = !marca || itemMarca === marca;
+            const coincideModelo = !modelo || itemModelo === modelo;
+            return coincideMarca && coincideModelo;
         });
+
+        const etiquetas = filtrados.map(item => item.categoria);
+        const valores = filtrados.map(item => item.valor);
+
+        precioChart.data.labels = etiquetas;
+        precioChart.data.datasets[0].data = valores;
+        precioChart.update();
     }
 
-    // Inicializar con la primera marca
-    const selector = document.getElementById("marcaSelect");
-    crearGrafico(selector.value);
-
-    // Cambiar gráfico al seleccionar otra marca
-    selector.addEventListener("change", function () {
-        crearGrafico(this.value);
-    });
-
-    // Gráfico de pastel: porcentaje de publicaciones por ciudad (Top 10)
-    const ctxCiudades = document.getElementById("graficoCiudades").getContext("2d");
-    new Chart(ctxCiudades, {
-        type: "pie",
+    const ctxPrecio = document.getElementById('promPrecioChart').getContext('2d');
+    const precioChart = new Chart(ctxPrecio, {
+        type: 'bar',
         data: {
-            labels: <?= json_encode(array_keys($topCiudades)) ?>,
+            labels: [],
             datasets: [{
-                data: <?= json_encode(array_values($topCiudades)) ?>,
-                backgroundColor: [
-                    "#0d6efd", "#198754", "#dc3545", "#ffc107", "#6f42c1",
-                    "#fd7e14", "#20c997", "#6610f2", "#e83e8c", "#6c757d"
-                ]
+                label: 'Precio promedio',
+                data: [],
+                backgroundColor: '#36A2EB',
+                borderRadius: 5,
             }]
         },
         options: {
+            responsive: true,
+            indexAxis: 'y',
             plugins: {
-                legend: {
-                    position: "bottom"
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ": " + context.parsed + "%";
-                        }
-                    }
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Eventos
+    document.getElementById('marcaFiltroPrecio').addEventListener('change', actualizarFiltro);
+    document.getElementById('modeloFiltroPrecio').addEventListener('change', actualizarFiltro);
+
+    function actualizarFiltro() {
+        const marca = document.getElementById('marcaFiltroPrecio').value;
+        const modelo = document.getElementById('modeloFiltroPrecio').value;
+        filtrarPorMarcaYModelo(marca, modelo);
+    }
+
+    // Inicializar
+    filtrarPorMarcaYModelo('', '');
+</script>
+
+
+    <!-- Ventas por marca - gráfica doughnut -->
+    <div class="card p-4 mb-5">
+        <div class="card-header">Ventas por marca</div>
+        <canvas id="ventasDoughnutChart"></canvas>
+    </div>
+
+    <!-- Porcentaje por ciudad - tabla -->
+    <div class="card p-4 mb-5">
+        <div class="card-header">Porcentaje de Autos vendidos por ciudad</div>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr><th>Categoría</th><th>Valor</th></tr>
+            </thead>
+            <tbody>
+                <?php foreach ($datos['8 - Porcentaje por ciudad'] ?? [] as $item): ?>
+                <tr>
+                    <td><?= htmlspecialchars($item['categoria']) ?></td>
+                    <td><?= htmlspecialchars($item['valor']) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    
+
+</div>
+
+<script>
+    // Paso donde más se cancelan trámites - barra
+    const cancelLabels = <?= json_encode(array_map(fn($item) => $item['categoria'], $datos['2 - Paso donde más se cancelan trámites'] ?? [])) ?>;
+    const cancelValues = <?= json_encode(array_map(fn($item) => $item['valor'], $datos['2 - Paso donde más se cancelan trámites'] ?? [])) ?>;
+    const ctxCancel = document.getElementById('graficaCancelaciones').getContext('2d');
+    new Chart(ctxCancel, {
+        type: 'bar',
+        data: {
+            labels: cancelLabels,
+            datasets: [{
+                label: 'Trámites cancelados',
+                data: cancelValues,
+                backgroundColor: cancelLabels.map((_, i) => `hsl(${i*45}, 70%, 60%)`),
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false },
+            },
+            scales: {
+                y: { beginAtZero: true },
+                x: {
+                    ticks: { maxRotation: 45, minRotation: 30 }
                 }
             }
         }
     });
-    </script>
+
+
+
+    // Publicaciones por marca - pie
+    const pubLabels = <?= json_encode(array_map(fn($item) => $item['categoria'], $datos['6 - Publicaciones por marca'] ?? [])) ?>;
+    const pubValues = <?= json_encode(array_map(fn($item) => $item['valor'], $datos['6 - Publicaciones por marca'] ?? [])) ?>;
+    const pubColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+
+    const ctxPie = document.getElementById('publicacionesPieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: pubLabels,
+            datasets: [{
+                data: pubValues,
+                backgroundColor: pubLabels.map((_, i) => pubColors[i % pubColors.length]),
+                hoverOffset: 20,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right' },
+                tooltip: { enabled: true }
+            }
+        }
+    });
+
+    // Ventas por marca - doughnut
+    const ventasLabels = <?= json_encode(array_map(fn($item) => $item['categoria'], $datos['Ventas por marca'] ?? [])) ?>;
+    const ventasValues = <?= json_encode(array_map(fn($item) => $item['valor'], $datos['Ventas por marca'] ?? [])) ?>;
+    const ventasColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4DB6AC', '#BA68C8'];
+
+    const ctxDoughnut = document.getElementById('ventasDoughnutChart').getContext('2d');
+    new Chart(ctxDoughnut, {
+        type: 'doughnut',
+        data: {
+            labels: ventasLabels,
+            datasets: [{
+                data: ventasValues,
+                backgroundColor: ventasLabels.map((_, i) => ventasColors[i % ventasColors.length]),
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 30
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { enabled: true }
+            }
+        }
+    });
+</script>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
