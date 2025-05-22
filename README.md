@@ -52,6 +52,7 @@ docker stack deploy -c docker-stack.yml automarketuao
    ```bash
    mkdir Databases
    cp Databases/* /vagrant/Databases/
+   cp csvs/* /vagrant/Databases/
    ```
 
 2. En la **VM worker**, copia los archivos a los contenedores de MySQL:
@@ -114,8 +115,122 @@ Si deseas realizar análisis sobre los datos, puedes ejecutar el siguiente scrip
 ### 1. Crear el archivo de consultas
 
 Crea un archivo llamado `consultas.py` dentro del directorio `apps` de tu instalación de Spark (`labSpark`), y copia el siguiente código:
-📎 *(El código permanece igual, no lo repito aquí para no duplicar contenido innecesariamente. Puedo limpiarlo si lo deseas.)*
 
+```bash
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, avg, count, desc, datediff, lit, round as spark_round, when
+from pyspark.sql import Row
+import sys
+
+# Crear sesión Spark
+spark = SparkSession.builder \
+        .appName("AutoMarket_Unificado") \
+        .master("spark://192.168.100.3:7077") \
+        .getOrCreate()
+
+# Leer archivos de entrada
+tramites_df = spark.read.options(header='True', inferSchema='True').csv(sys.argv[1])
+publicaciones_df = spark.read.format("csv") \
+    .option("header", "true") \
+    .option("inferSchema", "true") \
+    .option("multiLine", "true") \
+    .option("quote", "\"") \
+    .option("escape", "\"") \
+    .load(sys.argv[2])
+
+# CONSULTA 1: Cantidad de trámites por estado
+consulta1 = tramites_df.groupBy("estado") \
+    .count() \
+    .orderBy(desc("count")) \
+    .withColumn("consulta", lit("1 - Trámites por estado")) \
+    .selectExpr("estado as categoria", "cast(count as string) as valor", "consulta")
+
+# CONSULTA 2: Paso donde más se cancelan trámites ----------
+pasos = ["revision_doc", "cita", "contrato", "pago", "Traspaso", "entrega"]
+cancelados_df = tramites_df.filter(col("estado") == "Cancelado")
+
+paso_cancelados = [(paso, cancelados_df.filter(col(paso) == 0).count()) for paso in pasos]
+paso_cancelados_df = spark.createDataFrame(paso_cancelados, ["categoria", "cantidad"]) \
+    .orderBy(desc("cantidad")) \
+    .withColumn("consulta", lit("2 - Paso donde más se cancelan trámites")) \
+    .selectExpr("categoria", "cast(cantidad as string) as valor", "consulta")
+
+# CONSULTA 3: Promedio de duración de trámites finalizados ----------
+duracion_df = tramites_df.filter(col("fecha_fin").isNotNull()) \
+    .withColumn("duracion_dias", datediff(col("fecha_fin"), col("fecha_inicio"))) \
+    .agg(avg("duracion_dias").alias("valor")) \
+    .withColumn("consulta", lit("3 - Promedio de duración de trámites")) \
+    .withColumn("categoria", lit("Duración promedio")) \
+    .selectExpr("categoria", "cast(round(valor, 2) as string) as valor", "consulta")
+
+# CONSULTA 4: Porcentaje de estado de los trámites
+total_tramites = tramites_df.count()
+consulta4 = tramites_df.groupBy("estado") \
+    .count() \
+    .withColumn("porcentaje", (col("count") / total_tramites) * 100) \
+    .orderBy(desc("porcentaje")) \
+    .withColumn("consulta", lit("4 - Porcentaje de trámites por estado")) \
+    .selectExpr("estado as categoria", "concat(cast(round(porcentaje, 2) as string), '%') as valor", "consulta")
+
+# CONSULTA 5: Promedio días entre publicación y finalización
+tramites_filtrados = tramites_df.filter(col("fecha_fin").isNotNull()).select("id_vehiculo", "fecha_fin")
+publicaciones_join = publicaciones_df.select(col("idPublicacion").alias("id_vehiculo"), col("fecha_publicacion"))
+
+join_df = tramites_filtrados.join(publicaciones_join, on="id_vehiculo", how="inner")
+con_dias_df = join_df.withColumn("dias_transcurridos", datediff(col("fecha_fin"), col("fecha_publicacion")))
+promedio_dias = con_dias_df.select(avg("dias_transcurridos").alias("valor")) \
+    .withColumn("consulta", lit("5 - Promedio días publicación a finalización")) \
+    .withColumn("categoria", lit("Promedio días")) \
+    .selectExpr("categoria", "cast(round(valor, 2) as string) as valor", "consulta")
+
+# CONSULTA 6: Conteo y porcentaje de marcas
+total_publicaciones = publicaciones_df.count()
+marcas_df = publicaciones_df.groupBy("marca") \
+    .agg(count("*").alias("cantidad")) \
+    .withColumn("porcentaje", spark_round((col("cantidad") / total_publicaciones) * 100, 2)) \
+    .withColumn("consulta", lit("6 - Publicaciones por marca")) \
+    .selectExpr("marca as categoria", "concat(cast(porcentaje as string), '%') as valor", "consulta")
+
+# CONSULTA 7: Promedio precio por marca, modelo y año
+precio_df = publicaciones_df.groupBy("marca", "modelo", "ano") \
+    .agg(spark_round(avg("precio"), 2).alias("valor")) \
+    .withColumn("consulta", lit("7 - Promedio precio por marca y año")) \
+    .selectExpr("concat(marca, ' ', modelo, ' ', ano) as categoria", "cast(valor as string) as valor", "consulta")
+
+# CONSULTA 8: Porcentaje por ubicación
+ubicaciones_validas = [
+    "Bucaramanga", "Pereira", "Cali", "Manizales", "Medellín",
+    "Cúcuta", "Santa Marta", "Cartagena", "Barranquilla", "Bogotá"
+]
+publicaciones_con_ciudad = publicaciones_df.withColumn(
+    "ciudad",
+    when(col("ubicacion").isin(ubicaciones_validas), col("ubicacion"))
+    .when(col("estado").isin(ubicaciones_validas), col("estado"))
+)
+
+filtrado_ciudad_df = publicaciones_con_ciudad.filter(col("ciudad").isNotNull())
+total_ciudades = filtrado_ciudad_df.count()
+
+ubicacion_df = filtrado_ciudad_df.groupBy("ciudad") \
+    .agg(count("*").alias("cantidad")) \
+    .withColumn("porcentaje", spark_round((col("cantidad") / total_ciudades) * 100, 2)) \
+    .withColumn("consulta", lit("8 - Porcentaje por ciudad")) \
+    .selectExpr("ciudad as categoria", "concat(cast(porcentaje as string), '%') as valor", "consulta")
+
+# UNIR TODOS LOS RESULTADOS
+resultado_final = consulta1.unionByName(paso_cancelados_df) \
+    .unionByName(duracion_df) \
+    .unionByName(consulta4) \
+    .unionByName(promedio_dias) \
+    .unionByName(marcas_df) \
+    .unionByName(precio_df) \
+    .unionByName(ubicacion_df)
+
+resultado_final.show(truncate=False)
+# En caso de guardar los resultados en su maquina quite el comentario de la siguiente linea
+# resultado_final.coalesce(1).write.mode("overwrite").option("header", "true").csv(sys.argv[3])
+
+```
 ---
 
 ### 2. Ejecutar el script
