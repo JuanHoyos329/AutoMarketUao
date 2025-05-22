@@ -119,7 +119,7 @@ En caso de no tener Spark en su maquina virtual vea le siguiente archivo para in
 
 ### 1. Crear el archivo de consultas
 
-Crea un archivo llamado `consultas.py` dentro del directorio `apps` de tu instalación de Spark (`labSpark`), y copia el siguiente código:
+Crea un archivo llamado `consultas.py` dentro del directorio `app` de tu instalación de Spark (`labSpark`), y copia el siguiente código:
 
 ```bash
 from pyspark.sql import SparkSession
