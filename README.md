@@ -124,7 +124,7 @@ import sys
 
 # Crear sesión Spark
 spark = SparkSession.builder \
-        .appName("AutoMarket_Unificado") \
+        .appName("AutoMarket") \
         .master("spark://192.168.100.3:7077") \
         .getOrCreate()
 
@@ -217,6 +217,17 @@ ubicacion_df = filtrado_ciudad_df.groupBy("ciudad") \
     .withColumn("consulta", lit("8 - Porcentaje por ciudad")) \
     .selectExpr("ciudad as categoria", "concat(cast(porcentaje as string), '%') as valor", "consulta")
 
+#CONSULTA 9: Marcas que mas vendieron y que menos vendieron
+
+# Filtrar los registros donde el estado sea 'Finalizado'
+ventas_finalizadas_df = tramites_df.filter(col("estado") == "Finalizado")
+
+# Agrupar por marca y contar cuántas veces aparece cada una
+ventas_por_marca_df = ventas_finalizadas_df.groupBy("marca") \
+    .agg(count("*").alias("valor")) \
+    .withColumnRenamed("marca", "categoria") \
+    .withColumn("consulta", lit("Ventas por marca"))
+
 # UNIR TODOS LOS RESULTADOS
 resultado_final = consulta1.unionByName(paso_cancelados_df) \
     .unionByName(duracion_df) \
@@ -224,7 +235,8 @@ resultado_final = consulta1.unionByName(paso_cancelados_df) \
     .unionByName(promedio_dias) \
     .unionByName(marcas_df) \
     .unionByName(precio_df) \
-    .unionByName(ubicacion_df)
+    .unionByName(ubicacion_df) \
+    .unionByName(ventas_por_marca_df)
 
 resultado_final.show(truncate=False)
 # En caso de guardar los resultados en su maquina quite el comentario de la siguiente linea
@@ -246,7 +258,7 @@ cd spark-3.5.5-bin-hadoop3/bin/
 
 * Verifica que las rutas de los archivos CSV sean correctas.
 * Asegúrate de que la IP del master de Spark (`192.168.100.3`) sea correcta.
-* Si no ejecutas como root, puede que necesites permisos adicionales.
+* Si no ejecutas como root, debes de cambiar la ruta de labSpark.
 
 ---
 
