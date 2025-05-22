@@ -11,7 +11,7 @@
 * **Microservicios:** 3 en Node.js, 1 en Java
 * **Base de datos:** MySQL (4 instancias independientes)
 * **Contenedores:** Docker + Docker Swarm (Stack)
-* **Infraestructura:** Vagrant + Apache2 + Bind9
+* **Infraestructura:** Vagrant + Apache2
 * **Control de versiones:** Git + GitHub
 
 ---
@@ -58,9 +58,9 @@ docker stack deploy -c docker-stack.yml automarketuao
 2. En la **VM worker**, copia los archivos a los contenedores de MySQL:
 
    ```bash
-   docker cp /vagrant/Databases/backtramites_tramites.sql contenedor_tramites:/backtramites_tramites.sql
-   docker cp /vagrant/Databases/usersautomarketuao_users.sql contenedor_users:/usersautomarketuao_users.sql
-   docker cp /vagrant/Databases/automarketuao_publicaciones.sql contenedor_publicaciones:/automarketuao_publicaciones.sql
+   docker cp /vagrant/Databases/backtramites_tramites.sql (contenedor_tramites o ID):/backtramites_tramites.sql
+   docker cp /vagrant/Databases/usersautomarketuao_users.sql (contenedor_users o ID):/usersautomarketuao_users.sql
+   docker cp /vagrant/Databases/automarketuao_publicaciones.sql (contenedor_publicaciones o ID):/automarketuao_publicaciones.sql
    ```
 
 3. Accede a cada contenedor e importa las bases de datos:
@@ -70,6 +70,7 @@ docker stack deploy -c docker-stack.yml automarketuao
    mysql -uroot -proot backtramites < /backtramites_tramites.sql
    #Aqui debemos de hacer una modificacion para que la aplicacion use la tabla correcta
    mysql -uroot -proot
+   use backtramites;
    rename table tramites to Tramites;
    exit
 
@@ -111,6 +112,9 @@ http://192.168.100.2:80
 ## ⚡ Consultas opcionales en Apache Spark
 
 Si deseas realizar análisis sobre los datos, puedes ejecutar el siguiente script con Apache Spark.
+
+En caso de no tener Spark en su maquina virtual vea le siguiente archivo para instalarlo correctamente.
+[Cómo instalar PySpark](https://docs.google.com/document/d/16QaoHkk6zZ1VkHMYHJLdYDZ2wLfBupyi/edit?usp=sharing&ouid=102286551969155299986&rtpof=true&sd=true)
 
 ### 1. Crear el archivo de consultas
 
