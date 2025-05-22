@@ -30,7 +30,7 @@
 ### 1. Clonar el repositorio y desplegar el stack
 
 ```bash
-git clone git@github.com:JuanHoyos329/AutoMarketUao.git
+git clone https://github.com/JuanHoyos329/AutoMarketUao.git
 cd AutoMarketUao
 ```
 
