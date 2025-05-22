@@ -73,6 +73,7 @@ docker stack deploy -c docker-stack.yml automarketuao
    use backtramites;
    rename table tramites to Tramites;
    exit
+   exit
 
    docker exec -it contenedor_users bash
    mysql -uroot -proot usersautomarketuao < /usersautomarketuao_users.sql
