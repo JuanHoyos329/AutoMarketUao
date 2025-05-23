@@ -100,43 +100,6 @@ services:
         constraints:
           - node.role == manager
 
-  # 🔹 Base de datos de Favoritos
-  db-favoritos:
-    image: juanhoyos329/favoritos-mysql:v1
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: favoritosdb
-    ports:
-      - "3309:3306"
-    volumes:
-      - favoritos-data:/var/lib/mysql
-    networks:
-      - automarketuao
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
-
-  # 🔹 Servicio de Favoritos
-  favoritos-service:
-    image: fabiaangzc/favoritos-api:v1
-    ports:
-      - "3002:3002"
-    environment:
-      - PUBLICACIONES_SERVICE_URL=http://publicaciones-service:8080
-      - DB_HOST=db-favoritos
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=favoritosdb
-    networks:
-      - automarketuao
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-
   # 🔹 Frontend
   frontend:
     image: juanhoyos329/frontend:v1
