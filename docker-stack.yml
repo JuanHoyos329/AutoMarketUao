@@ -102,7 +102,7 @@ services:
 
   # 🔹 Frontend
   frontend:
-    image: juanhoyos329/frontend:v1
+    image: juanhoyos329/frontend:v4
     ports:
       - "80:80"
     restart: unless-stopped
