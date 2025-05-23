@@ -8,11 +8,31 @@
 
 * **Frontend:** JavaScript + PHP
 * **Backend:** Spring Boot (Java), Node.js
-* **Microservicios:** 3 en Node.js, 1 en Java
+* **Microservicios:** 2 en Node.js, 1 en Java
 * **Base de datos:** MySQL (4 instancias independientes)
 * **Contenedores:** Docker + Docker Swarm (Stack)
 * **Infraestructura:** Vagrant + Apache2
 * **Control de versiones:** Git + GitHub
+
+---
+
+## 📄 Organización del Repositorio
+
+Este repositorio está estructurado para contener los diferentes componentes de la aplicación web **AutoMarketUAO**, incluyendo la lógica de negocio y los recursos de soporte.
+
+### 📁 Directorios principales:
+
+* **`usuarios/`**, **`publicaciones/`**, **`tramites/`**:
+  Contienen el código fuente de los microservicios correspondientes a la gestión de usuarios, publicaciones de vehículos y trámites administrativos, respectivamente.
+
+* **`Databases/`**:
+  Contiene los archivos relacionados con las tres bases de datos utilizadas por la aplicación.
+
+* **`csvs/`**:
+  Incluye archivos CSV con las bases de datos exportadas, así como consultas SQL realizadas para pruebas o análisis.
+
+* **`Documento/`** y **`Diapositivas/`** (si aplica):
+  Carpeta destinada a documentación técnica, funcional y presentaciones asociadas al proyecto.
 
 ---
 
