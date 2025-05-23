@@ -75,6 +75,7 @@ Por lo tanto, vamos a copiar estos archivos a sus respectivos contenedores y cl√
    #Aqui debemos de hacer una modificacion para que la aplicacion use la tabla correcta
    mysql -uroot -proot
    use backtramites;
+   drop table Tramites;
    rename table tramites to Tramites;
    exit
    exit
