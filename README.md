@@ -46,6 +46,10 @@ docker stack deploy -c docker-stack.yml automarketuao
 
 ### 2. Restaurar bases de datos y archivos CSV
 
+Lo que debemos hacer aquí es copiar las bases de datos y nuestros archivos CSV, ya que los contenedores que 
+contienen las bases de datos y el clúster de Spark se encuentran en el worker. 
+Por lo tanto, vamos a copiar estos archivos a sus respectivos contenedores y clúster. Para ello, realizamos lo siguiente:
+
 1. Copia los archivos `.sql` y `.csv` a la carpeta compartida de Vagrant.
    Si no existe la carpeta `Databases`, créala:
 
@@ -72,6 +76,7 @@ docker stack deploy -c docker-stack.yml automarketuao
    mysql -uroot -proot
    use backtramites;
    rename table tramites to Tramites;
+   exit
    exit
 
    docker exec -it contenedor_users bash
@@ -118,7 +123,7 @@ En caso de no tener Spark en su maquina virtual vea le siguiente archivo para in
 
 ### 1. Crear el archivo de consultas
 
-Crea un archivo llamado `consultas.py` dentro del directorio `apps` de tu instalación de Spark (`labSpark`), y copia el siguiente código:
+Crea un archivo llamado `consultas.py` dentro del directorio `app` de tu instalación de Spark (`labSpark`), y copia el siguiente código:
 
 ```bash
 from pyspark.sql import SparkSession
