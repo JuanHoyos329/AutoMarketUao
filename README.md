@@ -46,6 +46,10 @@ docker stack deploy -c docker-stack.yml automarketuao
 
 ### 2. Restaurar bases de datos y archivos CSV
 
+Lo que debemos hacer aquí es copiar las bases de datos y nuestros archivos CSV, ya que los contenedores que 
+contienen las bases de datos y el clúster de Spark se encuentran en el worker. 
+Por lo tanto, vamos a copiar estos archivos a sus respectivos contenedores y clúster. Para ello, realizamos lo siguiente:
+
 1. Copia los archivos `.sql` y `.csv` a la carpeta compartida de Vagrant.
    Si no existe la carpeta `Databases`, créala:
 
