@@ -33,6 +33,7 @@ $user = $_SESSION["user"];
                 <a href="publicaciones.php" class="btn btn-primary">Ver Autos Publicados</a>
                 <a href="crearPublicacion.php" class="btn btn-success">Crear Publicación</a>
                 <a href="misTramites.php" class="btn btn-info">Mis Trámites</a>
+                <a href="dashboard.php" class="btn btn-secondary">Ver Dashboard</a>
                 <a href="index.php" class="btn btn-secondary">Cerrar Sesión</a>
             </div>
 
