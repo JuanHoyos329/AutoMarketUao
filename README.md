@@ -31,7 +31,7 @@ Este repositorio está estructurado para contener los diferentes componentes de 
 * **`csvs/`**:
   Incluye archivos CSV con las bases de datos exportadas, así como consultas SQL realizadas para pruebas o análisis.
 
-* **`Documento/`** y **`Diapositivas/`** (si aplica):
+* **`Documento/`** y **`Diapositivas/`**:
   Carpeta destinada a documentación técnica, funcional y presentaciones asociadas al proyecto.
 
 ---
